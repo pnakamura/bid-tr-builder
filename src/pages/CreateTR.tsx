@@ -1,13 +1,17 @@
-import { useState } from "react";
 import { Header } from "@/components/Header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { ProgressIndicator } from "@/components/ProgressIndicator";
+import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, FileText, Save, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, ArrowRight, FileText, Save } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
 const steps = [
   { id: 1, title: "Informações Básicas", description: "Dados gerais do termo de referência" },
@@ -19,6 +23,8 @@ const steps = [
 
 const CreateTR = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error" | "pending">("saved");
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
     type: "",
@@ -30,11 +36,18 @@ const CreateTR = () => {
     requirements: ""
   });
 
-  const navigate = useNavigate();
-
   const handleNext = () => {
     if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
+      setSaveStatus("saving");
+      // Simulate save
+      setTimeout(() => {
+        setCurrentStep(currentStep + 1);
+        setSaveStatus("saved");
+        toast({
+          title: "Progresso salvo",
+          description: `Etapa ${currentStep} concluída com sucesso.`,
+        });
+      }, 1000);
     }
   };
 
@@ -42,6 +55,19 @@ const CreateTR = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const handleFieldChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    setSaveStatus("pending");
+    
+    // Simulate auto-save after 2 seconds
+    setTimeout(() => {
+      setSaveStatus("saving");
+      setTimeout(() => {
+        setSaveStatus("saved");
+      }, 800);
+    }, 2000);
   };
 
   const renderStepContent = () => {
@@ -56,12 +82,12 @@ const CreateTR = () => {
                   id="title"
                   placeholder="Ex: Consultoria para Sistema de Gestão"
                   value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  onChange={(e) => handleFieldChange("title", e.target.value)}
                 />
               </div>
               <div>
                 <Label htmlFor="type">Tipo de Contratação *</Label>
-                <Select value={formData.type} onValueChange={(value) => setFormData({...formData, type: value})}>
+                <Select value={formData.type} onValueChange={(value) => handleFieldChange("type", value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
@@ -81,7 +107,7 @@ const CreateTR = () => {
                 placeholder="Descreva brevemente o objeto da contratação..."
                 rows={4}
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) => handleFieldChange("description", e.target.value)}
               />
             </div>
 
@@ -92,7 +118,7 @@ const CreateTR = () => {
                 placeholder="Defina os objetivos específicos que se pretende alcançar..."
                 rows={3}
                 value={formData.objective}
-                onChange={(e) => setFormData({...formData, objective: e.target.value})}
+                onChange={(e) => handleFieldChange("objective", e.target.value)}
               />
             </div>
           </div>
@@ -108,7 +134,7 @@ const CreateTR = () => {
                 placeholder="Detalhe o escopo completo dos serviços a serem executados..."
                 rows={6}
                 value={formData.scope}
-                onChange={(e) => setFormData({...formData, scope: e.target.value})}
+                onChange={(e) => handleFieldChange("scope", e.target.value)}
               />
             </div>
 
@@ -119,7 +145,7 @@ const CreateTR = () => {
                 placeholder="Liste os requisitos técnicos, qualificações necessárias, certificações, etc..."
                 rows={4}
                 value={formData.requirements}
-                onChange={(e) => setFormData({...formData, requirements: e.target.value})}
+                onChange={(e) => handleFieldChange("requirements", e.target.value)}
               />
             </div>
           </div>
@@ -148,7 +174,7 @@ const CreateTR = () => {
                   id="duration"
                   placeholder="Ex: 120 dias"
                   value={formData.duration}
-                  onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                  onChange={(e) => handleFieldChange("duration", e.target.value)}
                 />
               </div>
               <div>
@@ -157,7 +183,7 @@ const CreateTR = () => {
                   id="budget"
                   placeholder="Ex: R$ 500.000,00"
                   value={formData.budget}
-                  onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                  onChange={(e) => handleFieldChange("budget", e.target.value)}
                 />
               </div>
             </div>
@@ -188,73 +214,79 @@ const CreateTR = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={() => navigate("/")} className="p-2">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Novo Termo de Referência</h1>
-              <p className="text-muted-foreground">Siga as etapas para criar seu TR</p>
-            </div>
-          </div>
-          <Button variant="outline">
-            <Save className="h-4 w-4 mr-2" />
-            Salvar Rascunho
-          </Button>
-        </div>
-
-        {/* Progress Steps */}
+      <Breadcrumbs />
+      
+      <main className="max-w-5xl mx-auto p-6 animate-fade-in">
+        {/* Header Section with Auto-save */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 
-                  ${currentStep >= step.id 
-                    ? 'bg-primary border-primary text-primary-foreground' 
-                    : 'border-muted-foreground text-muted-foreground'}`}>
-                  {step.id}
-                </div>
-                {index < steps.length - 1 && (
-                  <div className={`h-0.5 w-16 ml-2 ${currentStep > step.id ? 'bg-primary' : 'bg-muted'}`} />
-                )}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm" asChild className="hover:bg-muted/50">
+                <Link to="/">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Voltar
+                </Link>
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  Criar Termo de Referência
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Siga os passos para criar um TR completo conforme diretrizes do BID
+                </p>
               </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <h2 className="text-lg font-medium">{steps[currentStep - 1].title}</h2>
-            <p className="text-muted-foreground">{steps[currentStep - 1].description}</p>
+            </div>
+            <AutoSaveIndicator status={saveStatus} />
           </div>
         </div>
 
-        {/* Form Content */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Etapa {currentStep} de {steps.length}</CardTitle>
+        {/* Progress Indicator */}
+        <ProgressIndicator 
+          steps={steps} 
+          currentStep={currentStep} 
+          className="mb-8"
+        />
+
+        <Card className="shadow-md animate-scale-in">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                <span className="text-primary font-semibold">{currentStep}</span>
+              </div>
+              <div>
+                <CardTitle className="text-xl">{steps[currentStep - 1].title}</CardTitle>
+                <CardDescription className="text-base mt-1">
+                  {steps[currentStep - 1].description}
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6 pt-0">
             {renderStepContent()}
           </CardContent>
         </Card>
 
         {/* Navigation */}
         <div className="flex justify-between mt-8">
-          <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 1}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button 
+            variant="outline" 
+            onClick={handlePrevious} 
+            disabled={currentStep === 1}
+            className="hover-scale"
+          >
+            <ChevronLeft className="h-4 w-4 mr-2" />
             Anterior
           </Button>
           
           {currentStep === steps.length ? (
-            <Button className="bg-success hover:bg-success/90">
+            <Button className="bg-success hover:bg-success/90 hover-scale">
               <FileText className="h-4 w-4 mr-2" />
               Finalizar TR
             </Button>
           ) : (
-            <Button onClick={handleNext}>
+            <Button onClick={handleNext} className="hover-scale">
               Próximo
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
           )}
         </div>

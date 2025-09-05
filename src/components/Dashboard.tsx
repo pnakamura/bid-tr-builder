@@ -1,136 +1,210 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, FileText, Calendar, Users, BarChart3, Search, Filter, Clock, CheckCircle, Zap, Target } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FileText, Building, Users, Settings, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const contractTypes = [
-  {
-    id: "obras",
-    title: "Obras e Serviços de Engenharia", 
-    description: "Construção, reformas, instalações e serviços de engenharia",
-    icon: Building,
-    color: "bg-blue-500",
-    count: 12
-  },
-  {
-    id: "consultoria", 
-    title: "Consultorias e Serviços Técnicos",
-    description: "Estudos, projetos, assessorias e consultorias especializadas",
-    icon: Users,
-    color: "bg-green-500", 
-    count: 8
-  },
-  {
-    id: "equipamentos",
-    title: "Equipamentos e Materiais",
-    description: "Aquisição de equipamentos, materiais e sistemas",
-    icon: Settings,
-    color: "bg-purple-500",
-    count: 5
-  }
-];
-
-const recentTRs = [
-  { id: 1, title: "Consultoria para Sistema de Gestão", type: "Consultoria", status: "draft", date: "2024-01-15" },
-  { id: 2, title: "Obras de Pavimentação Urbana", type: "Obras", status: "review", date: "2024-01-14" },
-  { id: 3, title: "Equipamentos de Laboratório", type: "Equipamentos", status: "approved", date: "2024-01-12" },
-  { id: 4, title: "Consultoria em TI", type: "Consultoria", status: "draft", date: "2024-01-10" },
-];
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'approved': return <CheckCircle className="h-4 w-4 text-success" />;
-    case 'review': return <AlertCircle className="h-4 w-4 text-accent" />;
-    default: return <Clock className="h-4 w-4 text-muted-foreground" />;
-  }
-};
-
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'approved': return 'Aprovado';
-    case 'review': return 'Em Análise';
-    default: return 'Rascunho';
-  }
+// Mock data for statistics
+const stats = {
+  active: 24,
+  draft: 7,
+  completed: 42,
+  users: 156
 };
 
 export const Dashboard = () => {
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {contractTypes.map((type) => {
-          const Icon = type.icon;
-          return (
-            <Card key={type.id} className="hover:shadow-lg transition-shadow cursor-pointer" 
-                  onClick={() => setSelectedType(type.id)}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className={`p-3 rounded-lg ${type.color}`}>
-                    <Icon className="h-6 w-6 text-white" />
-                  </div>
-                  <Badge variant="secondary">{type.count} TRs</Badge>
+    <div className="animate-fade-in">
+      <div className="p-6 space-y-6">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-lg p-8 border shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="max-w-4xl">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Target className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  Sistema de Termos de Referência
+                </h1>
+                <p className="text-lg text-muted-foreground">
+                  Plataforma integrada para criação, gestão e acompanhamento de Termos de Referência
+                  conforme diretrizes do BID e legislação brasileira.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-3">
+              <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-200 hover-scale">
+                <Link to="/create">
+                  <Plus className="mr-2 h-5 w-5" />
+                  Novo Termo de Referência
+                </Link>
+              </Button>
+              <Button variant="outline" size="lg" className="hover-scale transition-all duration-200">
+                <FileText className="mr-2 h-5 w-5" />
+                Templates
+              </Button>
+              <Button variant="outline" size="lg" className="hover-scale transition-all duration-200">
+                <BarChart3 className="mr-2 h-5 w-5" />
+                Relatórios
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              title: "TRs Ativos",
+              value: stats.active,
+              description: "+12% em relação ao mês anterior",
+              icon: FileText,
+              color: "text-primary",
+              bgColor: "bg-primary/10"
+            },
+            {
+              title: "Em Elaboração",
+              value: stats.draft,
+              description: "Aguardando revisão",
+              icon: Clock,
+              color: "text-yellow-600",
+              bgColor: "bg-yellow-100"
+            },
+            {
+              title: "Finalizados",
+              value: stats.completed,
+              description: "+5 neste mês",
+              icon: CheckCircle,
+              color: "text-success",
+              bgColor: "bg-success/10"
+            },
+            {
+              title: "Total de Usuários",
+              value: stats.users,
+              description: "Cadastrados no sistema",
+              icon: Users,
+              color: "text-accent-foreground",
+              bgColor: "bg-accent/20"
+            }
+          ].map((stat, index) => (
+            <Card key={stat.title} className="hover:shadow-md transition-all duration-300 hover-scale border-l-4 border-l-transparent hover:border-l-primary">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
               </CardHeader>
               <CardContent>
-                <CardTitle className="text-lg mb-2">{type.title}</CardTitle>
-                <CardDescription>{type.description}</CardDescription>
-                <Button className="w-full mt-4" variant="outline" onClick={() => navigate("/create")}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Criar Novo TR
-                </Button>
+                <div className="text-2xl font-bold mb-1">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">
+                  {stat.description}
+                </p>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+          ))}
+        </div>
 
-      {/* Recent TRs */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
+        {/* Quick Actions and Recent TRs */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Quick Actions */}
+          <Card className="lg:col-span-1 hover:shadow-md transition-all duration-300">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Termos de Referência Recentes
+                <Zap className="h-5 w-5 text-primary" />
+                Ações Rápidas
               </CardTitle>
-              <CardDescription>
-                Últimos documentos criados e editados
-              </CardDescription>
-            </div>
-            <Button onClick={() => navigate("/create")}>
-              <Plus className="h-4 w-4 mr-2" />
-              Novo TR
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentTRs.map((tr) => (
-              <div key={tr.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    {getStatusIcon(tr.status)}
-                    <div>
-                      <h4 className="font-medium text-foreground">{tr.title}</h4>
-                      <p className="text-sm text-muted-foreground">{tr.type}</p>
-                    </div>
-                  </div>
+              <CardDescription>Acesso direto às funcionalidades principais</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { label: "Criar TR - Consultoria", icon: Plus, href: "/create" },
+                { label: "Criar TR - Obras", icon: Plus, href: "/create" },
+                { label: "Criar TR - Equipamentos", icon: Plus, href: "/create" },
+                { label: "Importar Template", icon: FileText },
+                { label: "Agenda de Revisões", icon: Calendar }
+              ].map((action, index) => (
+                <Button
+                  key={action.label}
+                  asChild={!!action.href}
+                  variant="outline"
+                  className="w-full justify-start hover:bg-primary/5 transition-all duration-200 hover-scale"
+                >
+                  {action.href ? (
+                    <Link to={action.href}>
+                      <action.icon className="mr-2 h-4 w-4" />
+                      {action.label}
+                    </Link>
+                  ) : (
+                    <>
+                      <action.icon className="mr-2 h-4 w-4" />
+                      {action.label}
+                    </>
+                  )}
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Recent TRs */}
+          <Card className="lg:col-span-2 hover:shadow-md transition-all duration-300">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    TRs Recentes
+                  </CardTitle>
+                  <CardDescription>Últimos documentos atualizados</CardDescription>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <Badge variant="outline">{getStatusText(tr.status)}</Badge>
-                  <span className="text-sm text-muted-foreground">{tr.date}</span>
-                  <Button variant="ghost" size="sm">Abrir</Button>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm">
+                    <Search className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <Filter className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {[
+                  { title: "Consultoria Sistema Gestão", type: "Consultoria", status: "Em Análise", date: "15/01" },
+                  { title: "Obras Pavimentação", type: "Obras", status: "Aprovado", date: "14/01" },
+                  { title: "Equipamentos Lab", type: "Equipamentos", status: "Rascunho", date: "12/01" },
+                  { title: "Consultoria TI", type: "Consultoria", status: "Em Análise", date: "10/01" }
+                ].map((tr, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-all duration-200 hover-scale">
+                    <div>
+                      <p className="font-medium">{tr.title}</p>
+                      <p className="text-sm text-muted-foreground">{tr.type}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant={tr.status === "Aprovado" ? "default" : "secondary"}
+                        className="text-xs"
+                      >
+                        {tr.status}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">{tr.date}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button variant="outline" className="w-full mt-4 hover-scale">
+                Ver todos os TRs
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };
