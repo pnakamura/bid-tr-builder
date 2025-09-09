@@ -2,8 +2,8 @@ import { Header } from "@/components/Header";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
-import { useState } from "react";
-import { ChevronLeft, ChevronRight, FileText, Save, ArrowLeft } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ChevronLeft, ChevronRight, FileText, Save, ArrowLeft, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { useAutoSave } from "@/hooks/useAutoSave";
+import { validateStep, getStepProgress } from "@/lib/validation";
 
 const steps = [
   { id: 1, title: "Informações Básicas", description: "Dados gerais do termo de referência" },
@@ -23,7 +26,6 @@ const steps = [
 
 const CreateTR = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error" | "pending">("saved");
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     title: "",
@@ -33,21 +35,66 @@ const CreateTR = () => {
     scope: "",
     duration: "",
     budget: "",
-    requirements: ""
+    requirements: "",
+    technical_criteria: "",
+    experience_criteria: "",
+    technical_weight: 70,
+    experience_weight: 30
   });
 
+  // Load saved data from localStorage on component mount
+  const [initialLoad, setInitialLoad] = useState(true);
+  
+  // Auto-save functionality
+  const saveToLocalStorage = useCallback(async (data: typeof formData) => {
+    localStorage.setItem('tr-draft', JSON.stringify({ data, currentStep, timestamp: Date.now() }));
+  }, [currentStep]);
+
+  const { status, lastSaved } = useAutoSave({
+    data: formData,
+    onSave: saveToLocalStorage,
+    delay: 2000,
+    enabled: true
+  });
+
+  // Load saved data on mount
+  useState(() => {
+    if (initialLoad) {
+      const saved = localStorage.getItem('tr-draft');
+      if (saved) {
+        try {
+          const { data, currentStep: savedStep } = JSON.parse(saved);
+          setFormData(data);
+          setCurrentStep(savedStep);
+          toast({
+            title: "Rascunho recuperado",
+            description: "Seus dados foram restaurados automaticamente.",
+          });
+        } catch (error) {
+          console.error('Error loading saved data:', error);
+        }
+      }
+      setInitialLoad(false);
+    }
+  });
+
+  // Validation for current step
+  const currentStepValidation = validateStep(currentStep, formData);
+  const canProceed = currentStepValidation.success;
+
   const handleNext = () => {
-    if (currentStep < steps.length) {
-      setSaveStatus("saving");
-      // Simulate save
-      setTimeout(() => {
-        setCurrentStep(currentStep + 1);
-        setSaveStatus("saved");
-        toast({
-          title: "Progresso salvo",
-          description: `Etapa ${currentStep} concluída com sucesso.`,
-        });
-      }, 1000);
+    if (currentStep < steps.length && canProceed) {
+      setCurrentStep(currentStep + 1);
+      toast({
+        title: "Progresso salvo",
+        description: `Etapa ${currentStep} concluída com sucesso.`,
+      });
+    } else if (!canProceed) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos obrigatórios antes de continuar.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -57,17 +104,12 @@ const CreateTR = () => {
     }
   };
 
-  const handleFieldChange = (field: string, value: string) => {
+  const handleFieldChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    setSaveStatus("pending");
-    
-    // Simulate auto-save after 2 seconds
-    setTimeout(() => {
-      setSaveStatus("saving");
-      setTimeout(() => {
-        setSaveStatus("saved");
-      }, 800);
-    }, 2000);
+  };
+
+  const handleStepClick = (stepId: number) => {
+    setCurrentStep(stepId);
   };
 
   const renderStepContent = () => {
@@ -154,13 +196,64 @@ const CreateTR = () => {
       case 3:
         return (
           <div className="space-y-6">
-            <div className="text-center py-8">
-              <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">Critérios de Avaliação</h3>
-              <p className="text-muted-foreground">
-                Esta seção será implementada na próxima versão com templates específicos do BID
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="technical_criteria">Critérios Técnicos *</Label>
+                  <Textarea 
+                    id="technical_criteria"
+                    placeholder="Defina os critérios técnicos para avaliação das propostas..."
+                    rows={4}
+                    value={formData.technical_criteria}
+                    onChange={(e) => handleFieldChange("technical_criteria", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="technical_weight">Peso Técnico (%)</Label>
+                  <Input 
+                    id="technical_weight"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.technical_weight}
+                    onChange={(e) => handleFieldChange("technical_weight", parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="experience_criteria">Critérios de Experiência *</Label>
+                  <Textarea 
+                    id="experience_criteria"
+                    placeholder="Defina os critérios de experiência e qualificação..."
+                    rows={4}
+                    value={formData.experience_criteria}
+                    onChange={(e) => handleFieldChange("experience_criteria", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="experience_weight">Peso Experiência (%)</Label>
+                  <Input 
+                    id="experience_weight"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={formData.experience_weight}
+                    onChange={(e) => handleFieldChange("experience_weight", parseInt(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
             </div>
+            
+            {(formData.technical_weight + formData.experience_weight !== 100) && (
+              <div className="flex items-center gap-2 p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                <AlertCircle className="h-4 w-4 text-warning" />
+                <span className="text-sm text-warning">
+                  A soma dos pesos deve ser igual a 100% (atual: {formData.technical_weight + formData.experience_weight}%)
+                </span>
+              </div>
+            )}
           </div>
         );
 
@@ -236,14 +329,19 @@ const CreateTR = () => {
                 </p>
               </div>
             </div>
-            <AutoSaveIndicator status={saveStatus} />
+            <AutoSaveIndicator status={status} lastSaved={lastSaved} />
           </div>
         </div>
 
         {/* Progress Indicator */}
         <ProgressIndicator 
-          steps={steps} 
+          steps={steps.map(step => ({
+            ...step,
+            progress: getStepProgress(step.id, formData),
+            completed: validateStep(step.id, formData).success
+          }))} 
           currentStep={currentStep} 
+          onStepClick={handleStepClick}
           className="mb-8"
         />
 
@@ -279,15 +377,29 @@ const CreateTR = () => {
           </Button>
           
           {currentStep === steps.length ? (
-            <Button className="bg-success hover:bg-success/90 hover-scale">
+            <Button 
+              className="bg-success hover:bg-success/90 hover-scale"
+              disabled={!canProceed}
+            >
               <FileText className="h-4 w-4 mr-2" />
               Finalizar TR
             </Button>
           ) : (
-            <Button onClick={handleNext} className="hover-scale">
+            <Button 
+              onClick={handleNext} 
+              className="hover-scale"
+              disabled={!canProceed}
+            >
               Próximo
               <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
+          )}
+          
+          {!canProceed && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <AlertCircle className="h-4 w-4" />
+              Preencha todos os campos obrigatórios
+            </div>
           )}
         </div>
       </main>

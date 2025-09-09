@@ -1,13 +1,15 @@
-import { FileText, Building2, User, Settings, Bell, Search } from "lucide-react";
+import { FileText, Building2, User, Settings, Bell, Search, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 export const Header = () => {
   const location = useLocation();
   const isCreatePage = location.pathname === "/create";
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 shadow-sm sticky top-0 z-50">
@@ -50,9 +52,9 @@ export const Header = () => {
               <span>Banco Interamericano de Desenvolvimento</span>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
+            {/* Action buttons - Desktop */}
+            <div className="hidden md:flex items-center space-x-2">
+              <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
               </Button>
               <Button variant="ghost" size="sm">
@@ -62,8 +64,50 @@ export const Header = () => {
                 <User className="h-4 w-4" />
               </Button>
             </div>
+            
+            {/* Mobile menu button */}
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="md:hidden"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
           </div>
         </div>
+        
+        {/* Mobile Drawer - Conditionally rendered */}
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
+            <div className="fixed right-0 top-0 h-full w-64 bg-card border-l shadow-lg">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-lg font-semibold">Menu</h2>
+                  <Button variant="ghost" size="sm" onClick={() => setIsMobileMenuOpen(false)}>
+                    ×
+                  </Button>
+                </div>
+                
+                <div className="space-y-4">
+                  <Button variant="ghost" className="w-full justify-start">
+                    <Bell className="h-4 w-4 mr-2" />
+                    Notificações
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configurações
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <User className="h-4 w-4 mr-2" />
+                    Perfil
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
