@@ -46,13 +46,17 @@ export const Dashboard = () => {
                   Novo Termo de Referência
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" className="hover-scale transition-all duration-200">
-                <FileText className="mr-2 h-5 w-5" />
-                Templates
+              <Button asChild variant="outline" size="lg" className="hover-scale transition-all duration-200">
+                <Link to="/templates">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Templates
+                </Link>
               </Button>
-              <Button variant="outline" size="lg" className="hover-scale transition-all duration-200">
-                <BarChart3 className="mr-2 h-5 w-5" />
-                Relatórios
+              <Button asChild variant="outline" size="lg" className="hover-scale transition-all duration-200">
+                <Link to="/reports">
+                  <BarChart3 className="mr-2 h-5 w-5" />
+                  Relatórios
+                </Link>
               </Button>
             </div>
           </div>

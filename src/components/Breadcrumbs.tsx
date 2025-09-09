@@ -1,5 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
-import { Home, FileText, Plus } from "lucide-react";
+import { Home, FileText, Plus, BarChart3 } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,6 +12,8 @@ import {
 const routeMap = {
   "/": { label: "Dashboard", icon: Home },
   "/create": { label: "Criar TR", icon: Plus },
+  "/templates": { label: "Templates", icon: FileText },
+  "/reports": { label: "Relatórios", icon: BarChart3 },
 };
 
 export const Breadcrumbs = () => {
