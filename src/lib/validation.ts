@@ -9,6 +9,9 @@ export const basicInfoSchema = z.object({
   type: z.string()
     .min(1, "Selecione um tipo de contratação"),
   
+  template_id: z.string()
+    .min(1, "Selecione um template"),
+  
   description: z.string()
     .min(50, "A descrição deve ter pelo menos 50 caracteres")
     .max(2000, "A descrição não pode exceder 2000 caracteres"),

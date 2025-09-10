@@ -1,1 +1,4 @@
 project_id = "dvqnlnxkwcrxbctujajl"
+
+[functions.send-to-n8n]
+verify_jwt = true

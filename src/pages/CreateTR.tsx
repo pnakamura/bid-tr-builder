@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useFormValidation } from "@/hooks/useFormValidation";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { validateStep, getStepProgress } from "@/lib/validation";
+import { useTemplates } from "@/hooks/useTemplates";
+import { useSendToN8N } from "@/hooks/useSendToN8N";
 
 const steps = [
   { id: 1, title: "Informações Básicas", description: "Dados gerais do termo de referência" },
@@ -26,10 +28,14 @@ const steps = [
 
 const CreateTR = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { templates, isLoading: templatesLoading } = useTemplates();
+  const sendToN8N = useSendToN8N();
   const [formData, setFormData] = useState({
     title: "",
     type: "",
+    template_id: "",
     description: "",
     objective: "",
     scope: "",
@@ -112,6 +118,46 @@ const CreateTR = () => {
     setCurrentStep(stepId);
   };
 
+  const handleFinalizeTR = async () => {
+    if (!formData.template_id) {
+      toast({
+        title: "Template obrigatório",
+        description: "Selecione um template antes de finalizar o TR.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await sendToN8N.mutateAsync({
+        tr_data: {
+          title: formData.title,
+          type: formData.type,
+          description: formData.description,
+          objective: formData.objective,
+          scope: formData.scope,
+          requirements: formData.requirements,
+          technical_criteria: formData.technical_criteria,
+          experience_criteria: formData.experience_criteria,
+          technical_weight: formData.technical_weight,
+          experience_weight: formData.experience_weight,
+          duration: formData.duration,
+          budget: formData.budget,
+        },
+        template_id: formData.template_id
+      });
+
+      // Clear saved draft after successful submission
+      localStorage.removeItem('tr-draft');
+      
+    } catch (error) {
+      console.error('Error sending TR to N8N:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -140,6 +186,32 @@ const CreateTR = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="template_id">Template a ser Seguido *</Label>
+              <Select value={formData.template_id} onValueChange={(value) => handleFieldChange("template_id", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={templatesLoading ? "Carregando templates..." : "Selecione um template"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates?.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.title} ({template.category})
+                    </SelectItem>
+                  ))}
+                  {!templatesLoading && (!templates || templates.length === 0) && (
+                    <SelectItem value="" disabled>
+                      Nenhum template disponível
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              {formData.template_id && templates && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {templates.find(t => t.id === formData.template_id)?.description}
+                </p>
+              )}
             </div>
             
             <div>
@@ -291,6 +363,11 @@ const CreateTR = () => {
               <div className="space-y-3 text-sm">
                 <div><strong>Título:</strong> {formData.title || "Não informado"}</div>
                 <div><strong>Tipo:</strong> {formData.type || "Não informado"}</div>
+                <div><strong>Template:</strong> {
+                  formData.template_id 
+                    ? templates?.find(t => t.id === formData.template_id)?.title || "Template selecionado"
+                    : "Não selecionado"
+                }</div>
                 <div><strong>Descrição:</strong> {formData.description || "Não informado"}</div>
                 <div><strong>Prazo:</strong> {formData.duration || "Não informado"}</div>
                 <div><strong>Orçamento:</strong> {formData.budget || "Não informado"}</div>
@@ -379,10 +456,11 @@ const CreateTR = () => {
           {currentStep === steps.length ? (
             <Button 
               className="bg-success hover:bg-success/90 hover-scale"
-              disabled={!canProceed}
+              disabled={!canProceed || isSubmitting}
+              onClick={handleFinalizeTR}
             >
               <FileText className="h-4 w-4 mr-2" />
-              Finalizar TR
+              {isSubmitting ? "Enviando..." : "Finalizar TR"}
             </Button>
           ) : (
             <Button 
