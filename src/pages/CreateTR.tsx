@@ -192,7 +192,13 @@ const CreateTR = () => {
               <Label htmlFor="template_id">Template a ser Seguido *</Label>
               <Select value={formData.template_id} onValueChange={(value) => handleFieldChange("template_id", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder={templatesLoading ? "Carregando templates..." : "Selecione um template"} />
+                  <SelectValue placeholder={
+                    templatesLoading 
+                      ? "Carregando templates..." 
+                      : (!templates || templates.length === 0)
+                        ? "Nenhum template disponível"
+                        : "Selecione um template"
+                  } />
                 </SelectTrigger>
                 <SelectContent>
                   {templates?.map((template) => (
@@ -200,11 +206,6 @@ const CreateTR = () => {
                       {template.title} ({template.category})
                     </SelectItem>
                   ))}
-                  {!templatesLoading && (!templates || templates.length === 0) && (
-                    <SelectItem value="" disabled>
-                      Nenhum template disponível
-                    </SelectItem>
-                  )}
                 </SelectContent>
               </Select>
               {formData.template_id && templates && (
