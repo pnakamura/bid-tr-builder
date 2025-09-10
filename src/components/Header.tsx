@@ -1,8 +1,10 @@
-import { FileText, Building2, User, Settings, Bell, Search, Menu } from "lucide-react";
+import { FileText, Building2, User, Settings, Bell, Search, Menu, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -10,6 +12,7 @@ export const Header = () => {
   const location = useLocation();
   const isCreatePage = location.pathname === "/create";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 shadow-sm sticky top-0 z-50">
@@ -60,9 +63,38 @@ export const Header = () => {
               <Button variant="ghost" size="sm">
                 <Settings className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm">
-                <User className="h-4 w-4" />
-              </Button>
+              
+              {/* User Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span className="text-sm">{user?.user_metadata?.nome || user?.email?.split('@')[0]}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem className="font-medium">
+                    {user?.user_metadata?.nome || 'Usuário'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-muted-foreground text-xs">
+                    {user?.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="h-4 w-4 mr-2" />
+                    Perfil
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configurações
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-destructive">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             
             {/* Mobile menu button */}
@@ -91,6 +123,12 @@ export const Header = () => {
                 </div>
                 
                 <div className="space-y-4">
+                  {/* User info */}
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <p className="font-medium text-sm">{user?.user_metadata?.nome || 'Usuário'}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                  
                   <Button variant="ghost" className="w-full justify-start">
                     <Bell className="h-4 w-4 mr-2" />
                     Notificações
@@ -102,6 +140,15 @@ export const Header = () => {
                   <Button variant="ghost" className="w-full justify-start">
                     <User className="h-4 w-4 mr-2" />
                     Perfil
+                  </Button>
+                  
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start text-destructive"
+                    onClick={signOut}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sair
                   </Button>
                 </div>
               </div>
