@@ -172,6 +172,9 @@ const CreateTR = () => {
                   value={formData.title}
                   onChange={(e) => handleFieldChange("title", e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {formData.title.length}/10 caracteres mínimos
+                </p>
               </div>
               <div>
                 <Label htmlFor="type">Tipo de Contratação *</Label>
@@ -224,6 +227,9 @@ const CreateTR = () => {
                 value={formData.description}
                 onChange={(e) => handleFieldChange("description", e.target.value)}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.description.length}/50 caracteres mínimos
+              </p>
             </div>
 
             <div>
@@ -235,6 +241,9 @@ const CreateTR = () => {
                 value={formData.objective}
                 onChange={(e) => handleFieldChange("objective", e.target.value)}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.objective.length}/30 caracteres mínimos
+              </p>
             </div>
           </div>
         );
