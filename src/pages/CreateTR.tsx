@@ -2,8 +2,11 @@ import { Header } from "@/components/Header";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
+import { HelpDrawer } from "@/components/HelpDrawer";
+import { HelpTour } from "@/components/HelpTour";
+import { FieldHelp } from "@/components/FieldHelp";
 import { useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight, FileText, Save, ArrowLeft, AlertCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, Save, ArrowLeft, AlertCircle, PlayCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +20,8 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import { validateStep, getStepProgress } from "@/lib/validation";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useSendToN8N } from "@/hooks/useSendToN8N";
+import { useHelp } from "@/contexts/HelpContext";
+import { createTRHelpSteps } from "@/config/helpSteps";
 
 const steps = [
   { id: 1, title: "Informações Básicas", description: "Dados gerais do termo de referência" },
@@ -32,6 +37,7 @@ const CreateTR = () => {
   const { toast } = useToast();
   const { templates, isLoading: templatesLoading } = useTemplates();
   const sendToN8N = useSendToN8N();
+  const { startHelp } = useHelp();
   const [formData, setFormData] = useState({
     title: "",
     type: "",
@@ -118,6 +124,10 @@ const CreateTR = () => {
     setCurrentStep(stepId);
   };
 
+  const handleStartTour = () => {
+    startHelp(createTRHelpSteps);
+  };
+
   const handleFinalizeTR = async () => {
     if (!formData.template_id) {
       toast({
@@ -164,8 +174,11 @@ const CreateTR = () => {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="title">Título do Termo de Referência *</Label>
+              <div data-help-id="field-title">
+                <Label htmlFor="title" className="flex items-center">
+                  Título do Termo de Referência *
+                  <FieldHelp content="Digite um título claro e descritivo para o Termo de Referência. Mínimo de 10 caracteres." />
+                </Label>
                 <Input 
                   id="title"
                   placeholder="Ex: Consultoria para Sistema de Gestão"
@@ -176,8 +189,11 @@ const CreateTR = () => {
                   {formData.title.length}/10 caracteres mínimos
                 </p>
               </div>
-              <div>
-                <Label htmlFor="type">Tipo de Contratação *</Label>
+              <div data-help-id="field-type">
+                <Label htmlFor="type" className="flex items-center">
+                  Tipo de Contratação *
+                  <FieldHelp content="Selecione o tipo de contratação que melhor se adequa ao seu projeto." />
+                </Label>
                 <Select value={formData.type} onValueChange={(value) => handleFieldChange("type", value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o tipo" />
@@ -191,8 +207,11 @@ const CreateTR = () => {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="template_id">Template a ser Seguido *</Label>
+            <div data-help-id="field-template">
+              <Label htmlFor="template_id" className="flex items-center">
+                Template a ser Seguido *
+                <FieldHelp content="Selecione um template para preencher automaticamente vários campos com valores predefinidos. Isso acelera o processo de criação." />
+              </Label>
               <Select value={formData.template_id} onValueChange={(value) => handleFieldChange("template_id", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder={
@@ -218,8 +237,11 @@ const CreateTR = () => {
               )}
             </div>
             
-            <div>
-              <Label htmlFor="description">Descrição Geral *</Label>
+            <div data-help-id="field-description">
+              <Label htmlFor="description" className="flex items-center">
+                Descrição Geral *
+                <FieldHelp content="Descreva detalhadamente o objeto da contratação, incluindo todas as características relevantes. Mínimo de 50 caracteres." />
+              </Label>
               <Textarea 
                 id="description"
                 placeholder="Descreva brevemente o objeto da contratação..."
@@ -232,8 +254,11 @@ const CreateTR = () => {
               </p>
             </div>
 
-            <div>
-              <Label htmlFor="objective">Objetivo da Contratação *</Label>
+            <div data-help-id="field-objective">
+              <Label htmlFor="objective" className="flex items-center">
+                Objetivo da Contratação *
+                <FieldHelp content="Defina claramente os objetivos que devem ser alcançados com esta contratação. Mínimo de 30 caracteres." />
+              </Label>
               <Textarea 
                 id="objective"
                 placeholder="Defina os objetivos específicos que se pretende alcançar..."
@@ -408,7 +433,7 @@ const CreateTR = () => {
                 </Link>
               </Button>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent" data-help-id="page-title">
                   Criar Termo de Referência
                 </h1>
                 <p className="text-muted-foreground mt-1">
@@ -416,7 +441,18 @@ const CreateTR = () => {
                 </p>
               </div>
             </div>
-            <AutoSaveIndicator status={status} lastSaved={lastSaved} />
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleStartTour}
+                title="Iniciar tour guiado"
+              >
+                <PlayCircle className="h-4 w-4 mr-2" />
+                Tour Guiado
+              </Button>
+              <AutoSaveIndicator status={status} lastSaved={lastSaved} data-help-id="autosave-indicator" />
+            </div>
           </div>
         </div>
 
@@ -430,6 +466,7 @@ const CreateTR = () => {
           currentStep={currentStep} 
           onStepClick={handleStepClick}
           className="mb-8"
+          data-help-id="progress-indicator"
         />
 
         <Card className="shadow-md animate-scale-in">
@@ -477,6 +514,7 @@ const CreateTR = () => {
               onClick={handleNext} 
               className="hover-scale"
               disabled={!canProceed}
+              data-help-id="next-button"
             >
               Próximo
               <ChevronRight className="h-4 w-4 ml-2" />
@@ -491,6 +529,9 @@ const CreateTR = () => {
           )}
         </div>
       </main>
+      
+      <HelpTour />
+      <HelpDrawer onStartTour={handleStartTour} />
     </div>
   );
 };
