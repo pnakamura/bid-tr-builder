@@ -4,9 +4,9 @@ import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
 import { HelpDrawer } from "@/components/HelpDrawer";
 import { HelpTour } from "@/components/HelpTour";
-import { FieldHelp } from "@/components/FieldHelp";
+import { FormField } from "@/components/FormField";
 import { useState, useCallback, useEffect } from "react";
-import { ChevronLeft, ChevronRight, FileText, Save, ArrowLeft, AlertCircle, PlayCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, ArrowLeft, AlertCircle, PlayCircle, CheckCircle2, XCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,6 +87,34 @@ const CreateTR = () => {
   // Validation for current step
   const currentStepValidation = validateStep(currentStep, formData);
   const canProceed = currentStepValidation.success;
+  
+  // Real-time field validation states
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  
+  // Validate individual field
+  const validateField = (field: string, value: string | number) => {
+    const errors: Record<string, string> = {};
+    
+    if (currentStep === 1) {
+      if (field === 'title' && typeof value === 'string' && value.length < 10) {
+        errors.title = 'Mínimo 10 caracteres';
+      }
+      if (field === 'description' && typeof value === 'string' && value.length < 50) {
+        errors.description = 'Mínimo 50 caracteres';
+      }
+      if (field === 'objective' && typeof value === 'string' && value.length < 30) {
+        errors.objective = 'Mínimo 30 caracteres';
+      }
+      if (field === 'type' && !value) {
+        errors.type = 'Campo obrigatório';
+      }
+      if (field === 'template_id' && !value) {
+        errors.template_id = 'Campo obrigatório';
+      }
+    }
+    
+    return errors;
+  };
 
   const handleNext = () => {
     if (currentStep < steps.length && canProceed) {
@@ -112,6 +140,19 @@ const CreateTR = () => {
 
   const handleFieldChange = (field: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error when user starts typing
+    setFieldErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
+    
+    // Validate on blur (debounced)
+    setTimeout(() => {
+      const errors = validateField(field, value);
+      setFieldErrors(prev => ({ ...prev, ...errors }));
+    }, 500);
   };
 
   const handleStepClick = (stepId: number) => {
@@ -168,28 +209,38 @@ const CreateTR = () => {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div data-help-id="field-title">
-                <Label htmlFor="title" className="flex items-center">
-                  Título do Termo de Referência *
-                  <FieldHelp content="Digite um título claro e descritivo para o Termo de Referência. Mínimo de 10 caracteres." />
-                </Label>
+              <FormField
+                label="Título do Termo de Referência"
+                helpText="Digite um título claro e descritivo para o Termo de Referência. Mínimo de 10 caracteres."
+                error={fieldErrors.title}
+                success={formData.title.length >= 10}
+                required
+                htmlFor="title"
+                dataHelpId="field-title"
+              >
                 <Input 
                   id="title"
                   placeholder="Ex: Consultoria para Sistema de Gestão"
                   value={formData.title}
                   onChange={(e) => handleFieldChange("title", e.target.value)}
+                  className={fieldErrors.title ? "border-destructive" : formData.title.length >= 10 ? "border-success" : ""}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
                   {formData.title.length}/10 caracteres mínimos
                 </p>
-              </div>
-              <div data-help-id="field-type">
-                <Label htmlFor="type" className="flex items-center">
-                  Tipo de Contratação *
-                  <FieldHelp content="Selecione o tipo de contratação que melhor se adequa ao seu projeto." />
-                </Label>
+              </FormField>
+
+              <FormField
+                label="Tipo de Contratação"
+                helpText="Selecione o tipo de contratação que melhor se adequa ao seu projeto."
+                error={fieldErrors.type}
+                success={!!formData.type}
+                required
+                htmlFor="type"
+                dataHelpId="field-type"
+              >
                 <Select value={formData.type} onValueChange={(value) => handleFieldChange("type", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={fieldErrors.type ? "border-destructive" : formData.type ? "border-success" : ""}>
                     <SelectValue placeholder="Selecione o tipo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -198,16 +249,23 @@ const CreateTR = () => {
                     <SelectItem value="equipamentos">Equipamentos e Materiais</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </FormField>
             </div>
 
-            <div data-help-id="field-template">
-              <Label htmlFor="template_id" className="flex items-center">
-                Template a ser Seguido *
-                <FieldHelp content="Selecione um template para preencher automaticamente vários campos com valores predefinidos. Isso acelera o processo de criação." />
-              </Label>
+            <FormField
+              label="Template a ser Seguido"
+              helpText="Selecione um template para preencher automaticamente vários campos com valores predefinidos. Isso acelera o processo de criação."
+              error={fieldErrors.template_id}
+              success={!!formData.template_id}
+              required
+              htmlFor="template_id"
+              dataHelpId="field-template"
+            >
               <Select value={formData.template_id} onValueChange={(value) => handleFieldChange("template_id", value)}>
-                <SelectTrigger>
+                <SelectTrigger 
+                  className={fieldErrors.template_id ? "border-destructive" : formData.template_id ? "border-success" : ""}
+                  disabled={templatesLoading}
+                >
                   <SelectValue placeholder={
                     templatesLoading 
                       ? "Carregando templates..." 
@@ -225,45 +283,55 @@ const CreateTR = () => {
                 </SelectContent>
               </Select>
               {formData.template_id && templates && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-2">
                   {templates.find(t => t.id === formData.template_id)?.description}
                 </p>
               )}
-            </div>
+            </FormField>
             
-            <div data-help-id="field-description">
-              <Label htmlFor="description" className="flex items-center">
-                Descrição Geral *
-                <FieldHelp content="Descreva detalhadamente o objeto da contratação, incluindo todas as características relevantes. Mínimo de 50 caracteres." />
-              </Label>
+            <FormField
+              label="Descrição Geral"
+              helpText="Descreva detalhadamente o objeto da contratação, incluindo todas as características relevantes. Mínimo de 50 caracteres."
+              error={fieldErrors.description}
+              success={formData.description.length >= 50}
+              required
+              htmlFor="description"
+              dataHelpId="field-description"
+            >
               <Textarea 
                 id="description"
                 placeholder="Descreva brevemente o objeto da contratação..."
                 rows={4}
                 value={formData.description}
                 onChange={(e) => handleFieldChange("description", e.target.value)}
+                className={fieldErrors.description ? "border-destructive" : formData.description.length >= 50 ? "border-success" : ""}
               />
               <p className="text-xs text-muted-foreground mt-1">
                 {formData.description.length}/50 caracteres mínimos
               </p>
-            </div>
+            </FormField>
 
-            <div data-help-id="field-objective">
-              <Label htmlFor="objective" className="flex items-center">
-                Objetivo da Contratação *
-                <FieldHelp content="Defina claramente os objetivos que devem ser alcançados com esta contratação. Mínimo de 30 caracteres." />
-              </Label>
+            <FormField
+              label="Objetivo da Contratação"
+              helpText="Defina claramente os objetivos que devem ser alcançados com esta contratação. Mínimo de 30 caracteres."
+              error={fieldErrors.objective}
+              success={formData.objective.length >= 30}
+              required
+              htmlFor="objective"
+              dataHelpId="field-objective"
+            >
               <Textarea 
                 id="objective"
                 placeholder="Defina os objetivos específicos que se pretende alcançar..."
                 rows={3}
                 value={formData.objective}
                 onChange={(e) => handleFieldChange("objective", e.target.value)}
+                className={fieldErrors.objective ? "border-destructive" : formData.objective.length >= 30 ? "border-success" : ""}
               />
               <p className="text-xs text-muted-foreground mt-1">
                 {formData.objective.length}/30 caracteres mínimos
               </p>
-            </div>
+            </FormField>
           </div>
         );
       
@@ -483,20 +551,35 @@ const CreateTR = () => {
         </Card>
 
         {/* Navigation */}
-        <div className="flex justify-between mt-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
           <Button 
             variant="outline" 
             onClick={handlePrevious} 
             disabled={currentStep === 1}
-            className="hover-scale"
+            className="hover-scale w-full sm:w-auto"
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Anterior
           </Button>
           
+          <div className="flex-1 flex justify-center">
+            {!canProceed && Object.keys(fieldErrors).length > 0 && (
+              <div className="flex items-center gap-2 text-sm text-destructive animate-in fade-in">
+                <AlertCircle className="h-4 w-4" />
+                <span>Corrija os erros antes de continuar</span>
+              </div>
+            )}
+            {!canProceed && Object.keys(fieldErrors).length === 0 && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground animate-in fade-in">
+                <AlertCircle className="h-4 w-4" />
+                <span>Preencha todos os campos obrigatórios</span>
+              </div>
+            )}
+          </div>
+          
           {currentStep === steps.length ? (
             <Button 
-              className="bg-success hover:bg-success/90 hover-scale"
+              className="bg-success hover:bg-success/90 hover-scale w-full sm:w-auto"
               disabled={!canProceed || isSubmitting}
               onClick={handleFinalizeTR}
             >
@@ -506,20 +589,13 @@ const CreateTR = () => {
           ) : (
             <Button 
               onClick={handleNext} 
-              className="hover-scale"
+              className="hover-scale w-full sm:w-auto"
               disabled={!canProceed}
               data-help-id="next-button"
             >
               Próximo
               <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
-          )}
-          
-          {!canProceed && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <AlertCircle className="h-4 w-4" />
-              Preencha todos os campos obrigatórios
-            </div>
           )}
         </div>
       </main>

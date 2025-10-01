@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -23,6 +23,13 @@ interface HelpDrawerProps {
 
 export const HelpDrawer = ({ onStartTour }: HelpDrawerProps) => {
   const [open, setOpen] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(true);
+
+  // Stop pulsing after user interacts
+  useEffect(() => {
+    const timer = setTimeout(() => setIsPulsing(false), 10000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const faqs = [
     {
@@ -65,8 +72,11 @@ export const HelpDrawer = ({ onStartTour }: HelpDrawerProps) => {
         <Button
           variant="outline"
           size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+          className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 transition-all ${
+            isPulsing ? 'animate-bounce' : ''
+          }`}
           title="Ajuda"
+          onClick={() => setIsPulsing(false)}
         >
           <HelpCircle className="h-6 w-6" />
         </Button>
