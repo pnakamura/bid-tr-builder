@@ -2,3 +2,6 @@ project_id = "dvqnlnxkwcrxbctujajl"
 
 [functions.send-to-n8n]
 verify_jwt = true
+
+[functions.generate-tr-with-ai]
+verify_jwt = true

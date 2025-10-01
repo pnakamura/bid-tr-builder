@@ -20,6 +20,8 @@ import { useAutoSave } from "@/hooks/useAutoSave";
 import { validateStep, getStepProgress } from "@/lib/validation";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useSendToN8N } from "@/hooks/useSendToN8N";
+import { useGenerateTRWithAI } from "@/hooks/useGenerateTRWithAI";
+import { AIGenerationDialog } from "@/components/AIGenerationDialog";
 import { useHelp } from "@/contexts/HelpContext";
 import { createTRHelpSteps } from "@/config/helpSteps";
 
@@ -37,6 +39,7 @@ const CreateTR = () => {
   const { toast } = useToast();
   const { templates, isLoading: templatesLoading } = useTemplates();
   const sendToN8N = useSendToN8N();
+  const generateWithAI = useGenerateTRWithAI();
   const { startHelp } = useHelp();
   const [formData, setFormData] = useState({
     title: "",
@@ -161,6 +164,41 @@ const CreateTR = () => {
 
   const handleStartTour = () => {
     startHelp(createTRHelpSteps);
+  };
+
+  const handleGenerateWithAI = (context: string) => {
+    if (!formData.template_id) {
+      toast({
+        title: "Template Necessário",
+        description: "Selecione um template antes de gerar com IA",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    generateWithAI.mutate(
+      {
+        template_id: formData.template_id,
+        context: context || undefined,
+      },
+      {
+        onSuccess: (data) => {
+          setFormData((prev) => ({
+            ...prev,
+            title: data.title,
+            type: data.type,
+            description: data.description,
+            objective: data.objective,
+            scope: data.scope,
+            requirements: data.requirements,
+            technical_criteria: data.technical_criteria,
+            experience_criteria: data.experience_criteria,
+            duration: data.duration,
+            budget: data.budget,
+          }));
+        },
+      }
+    );
   };
 
   const handleFinalizeTR = async () => {
@@ -504,6 +542,11 @@ const CreateTR = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <AIGenerationDialog
+                onGenerate={handleGenerateWithAI}
+                isGenerating={generateWithAI.isPending}
+                disabled={!formData.template_id}
+              />
               <Button
                 variant="outline"
                 size="sm"
