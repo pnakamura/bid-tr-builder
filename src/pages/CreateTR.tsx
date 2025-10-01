@@ -5,7 +5,7 @@ import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
 import { HelpDrawer } from "@/components/HelpDrawer";
 import { HelpTour } from "@/components/HelpTour";
 import { FieldHelp } from "@/components/FieldHelp";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight, FileText, Save, ArrowLeft, AlertCircle, PlayCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -54,9 +54,6 @@ const CreateTR = () => {
     experience_weight: 30
   });
 
-  // Load saved data from localStorage on component mount
-  const [initialLoad, setInitialLoad] = useState(true);
-  
   // Auto-save functionality
   const saveToLocalStorage = useCallback(async (data: typeof formData) => {
     localStorage.setItem('tr-draft', JSON.stringify({ data, currentStep, timestamp: Date.now() }));
@@ -70,25 +67,22 @@ const CreateTR = () => {
   });
 
   // Load saved data on mount
-  useState(() => {
-    if (initialLoad) {
-      const saved = localStorage.getItem('tr-draft');
-      if (saved) {
-        try {
-          const { data, currentStep: savedStep } = JSON.parse(saved);
-          setFormData(data);
-          setCurrentStep(savedStep);
-          toast({
-            title: "Rascunho recuperado",
-            description: "Seus dados foram restaurados automaticamente.",
-          });
-        } catch (error) {
-          console.error('Error loading saved data:', error);
-        }
+  useEffect(() => {
+    const saved = localStorage.getItem('tr-draft');
+    if (saved) {
+      try {
+        const { data, currentStep: savedStep } = JSON.parse(saved);
+        setFormData(data);
+        setCurrentStep(savedStep);
+        toast({
+          title: "Rascunho recuperado",
+          description: "Seus dados foram restaurados automaticamente.",
+        });
+      } catch (error) {
+        console.error('Error loading saved data:', error);
       }
-      setInitialLoad(false);
     }
-  });
+  }, []); // Empty dependency array - run only once on mount
 
   // Validation for current step
   const currentStepValidation = validateStep(currentStep, formData);
