@@ -41,7 +41,7 @@ export const Dashboard = () => {
             
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg" className="shadow-md hover:shadow-lg transition-all duration-200 hover-scale">
-                <Link to="/create">
+                <Link to="/create-tr">
                   <Plus className="mr-2 h-5 w-5" />
                   Novo Termo de Referência
                 </Link>
@@ -128,9 +128,9 @@ export const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {[
-                { label: "Criar TR - Consultoria", icon: Plus, href: "/create" },
-                { label: "Criar TR - Obras", icon: Plus, href: "/create" },
-                { label: "Criar TR - Equipamentos", icon: Plus, href: "/create" },
+                { label: "Criar TR - Consultoria", icon: Plus, href: "/create-tr" },
+                { label: "Criar TR - Obras", icon: Plus, href: "/create-tr" },
+                { label: "Criar TR - Equipamentos", icon: Plus, href: "/create-tr" },
                 { label: "Importar Template", icon: FileText },
                 { label: "Agenda de Revisões", icon: Calendar }
               ].map((action, index) => (
