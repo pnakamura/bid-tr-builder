@@ -13,6 +13,11 @@ import { useTemplates, useDownloadTemplate, useDeleteTemplate, type Template } f
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { HelpDrawer } from "@/components/HelpDrawer";
+import { HelpTour } from "@/components/HelpTour";
+import { useHelp } from "@/contexts/HelpContext";
+import { templatesHelpSteps } from "@/config/templatesHelpSteps";
+import { Link } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +35,7 @@ const Templates = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const { user } = useAuth();
+  const { startHelp } = useHelp();
 
   const { templates, isLoading } = useTemplates({
     search: searchTerm,
@@ -52,15 +58,23 @@ const Templates = () => {
     return template.created_by === user?.id || user?.role === 'admin';
   };
 
+  const handleStartTour = () => {
+    startHelp(templatesHelpSteps);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <HelpTour />
       <div className="container mx-auto px-4 py-8">
         <Breadcrumbs />
         
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-12" data-help-id="templates-hero">
+          <div className="flex justify-end mb-4">
+            <HelpDrawer onStartTour={handleStartTour} />
+          </div>
+          <h1 className="text-4xl font-bold text-foreground mb-4" data-help-id="templates-title">
             Templates de Termos de Referência
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -70,7 +84,7 @@ const Templates = () => {
         </div>
 
         {/* Search and Filters */}
-        <Card className="mb-8">
+        <Card className="mb-8" data-help-id="templates-filters">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -80,7 +94,7 @@ const Templates = () => {
                 </CardDescription>
               </div>
               <TemplateUploadDialog>
-                <Button>
+                <Button data-help-id="upload-template-button">
                   <Plus className="h-4 w-4 mr-2" />
                   Novo Template
                 </Button>
@@ -155,8 +169,12 @@ const Templates = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {templates.length > 0 ? (
-              templates.map((template) => (
-                <Card key={template.id} className="group hover:shadow-lg transition-shadow">
+              templates.map((template, index) => (
+                <Card 
+                  key={template.id} 
+                  className="group hover:shadow-lg transition-shadow"
+                  data-help-id={`template-card-${index}`}
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -227,16 +245,23 @@ const Templates = () => {
                       Por: {template.creator_name}
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" className="flex-1">
-                        <FileText className="h-4 w-4 mr-2" />
-                        Usar Template
-                      </Button>
+                      <Link to={`/create-tr?template=${template.id}`} className="flex-1">
+                        <Button 
+                          size="sm" 
+                          className="w-full"
+                          data-help-id={`use-template-${index}`}
+                        >
+                          <FileText className="h-4 w-4 mr-2" />
+                          Usar Template
+                        </Button>
+                      </Link>
                       {template.file_path && (
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => handleDownload(template)}
                           disabled={downloadTemplate.isPending}
+                          data-help-id={`download-template-${index}`}
                         >
                           <Download className="h-4 w-4" />
                         </Button>

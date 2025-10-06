@@ -17,12 +17,14 @@ interface AIGenerationDialogProps {
   onGenerate: (context: string) => void;
   isGenerating: boolean;
   disabled?: boolean;
+  'data-help-id'?: string;
 }
 
 export const AIGenerationDialog = ({ 
   onGenerate, 
   isGenerating, 
-  disabled 
+  disabled = false,
+  'data-help-id': dataHelpId
 }: AIGenerationDialogProps) => {
   const [open, setOpen] = useState(false);
   const [context, setContext] = useState("");
@@ -41,6 +43,7 @@ export const AIGenerationDialog = ({
           variant="outline"
           className="gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5"
           disabled={disabled || isGenerating}
+          data-help-id={dataHelpId}
         >
           <Sparkles className="h-4 w-4 text-primary" />
           {isGenerating ? "Gerando..." : "Gerar com IA"}

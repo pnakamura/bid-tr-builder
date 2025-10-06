@@ -23,7 +23,7 @@ import { useSendToN8N } from "@/hooks/useSendToN8N";
 import { useGenerateTRWithAI } from "@/hooks/useGenerateTRWithAI";
 import { AIGenerationDialog } from "@/components/AIGenerationDialog";
 import { useHelp } from "@/contexts/HelpContext";
-import { createTRHelpSteps } from "@/config/helpSteps";
+import { createTRWithTemplatesHelpSteps } from "@/config/createTRWithTemplatesHelpSteps";
 
 const steps = [
   { id: 1, title: "Informações Básicas", description: "Dados gerais do termo de referência" },
@@ -163,7 +163,7 @@ const CreateTR = () => {
   };
 
   const handleStartTour = () => {
-    startHelp(createTRHelpSteps);
+    startHelp(createTRWithTemplatesHelpSteps);
   };
 
   const handleGenerateWithAI = (context: string) => {
@@ -546,6 +546,7 @@ const CreateTR = () => {
                 onGenerate={handleGenerateWithAI}
                 isGenerating={generateWithAI.isPending}
                 disabled={!formData.template_id}
+                data-help-id="ai-generate-button"
               />
               <Button
                 variant="outline"
@@ -556,6 +557,7 @@ const CreateTR = () => {
                 <PlayCircle className="h-4 w-4 mr-2" />
                 Tour Guiado
               </Button>
+              <HelpDrawer onStartTour={handleStartTour} data-help-id="help-drawer" />
               <AutoSaveIndicator status={status} lastSaved={lastSaved} data-help-id="autosave-indicator" />
             </div>
           </div>
