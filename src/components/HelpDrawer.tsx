@@ -123,27 +123,8 @@ export const HelpDrawer = ({ onStartTour }: HelpDrawerProps) => {
                     </AccordionContent>
                   </AccordionItem>
                 ))}
-              </Accordion>
-            </div>
-
-            {/* Resources */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-sm">Recursos</h3>
-              <div className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start" asChild>
-                  <a href="#" onClick={(e) => e.preventDefault()}>
-                    <Video className="h-4 w-4 mr-2" />
-                    Vídeos Tutoriais
-                  </a>
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" asChild>
-                  <a href="#" onClick={(e) => e.preventDefault()}>
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Suporte
-                  </a>
-                </Button>
-              </div>
-            </div>
+            </Accordion>
+          </div>
           </div>
         </ScrollArea>
       </SheetContent>
