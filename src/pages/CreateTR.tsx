@@ -116,6 +116,30 @@ const CreateTR = () => {
       }
     }
     
+    if (currentStep === 2) {
+      if (field === 'scope' && typeof value === 'string' && value.length < 30) {
+        errors.scope = 'Mínimo 30 caracteres';
+      }
+    }
+    
+    if (currentStep === 3) {
+      if (field === 'technical_criteria' && typeof value === 'string' && value.length < 30) {
+        errors.technical_criteria = 'Mínimo 30 caracteres';
+      }
+      if (field === 'experience_criteria' && typeof value === 'string' && value.length < 20) {
+        errors.experience_criteria = 'Mínimo 20 caracteres';
+      }
+    }
+    
+    if (currentStep === 4) {
+      if (field === 'duration' && !value) {
+        errors.duration = 'Campo obrigatório';
+      }
+      if (field === 'budget' && !value) {
+        errors.budget = 'Campo obrigatório';
+      }
+    }
+    
     return errors;
   };
 
@@ -376,19 +400,34 @@ const CreateTR = () => {
       case 2:
         return (
           <div className="space-y-6">
-            <div>
-              <Label htmlFor="scope">Escopo dos Serviços *</Label>
+            <FormField
+              label="Escopo dos Serviços"
+              helpText="Detalhe o escopo completo dos serviços a serem executados. Mínimo de 30 caracteres."
+              error={fieldErrors.scope}
+              success={formData.scope.length >= 30}
+              required
+              htmlFor="scope"
+              dataHelpId="field-scope"
+            >
               <Textarea 
                 id="scope"
                 placeholder="Detalhe o escopo completo dos serviços a serem executados..."
                 rows={6}
                 value={formData.scope}
                 onChange={(e) => handleFieldChange("scope", e.target.value)}
+                className={fieldErrors.scope ? "border-destructive" : formData.scope.length >= 30 ? "border-success" : ""}
               />
-            </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.scope.length}/30 caracteres mínimos
+              </p>
+            </FormField>
 
-            <div>
-              <Label htmlFor="requirements">Requisitos Técnicos</Label>
+            <FormField
+              label="Requisitos Técnicos"
+              helpText="Liste os requisitos técnicos, qualificações necessárias, certificações, etc."
+              htmlFor="requirements"
+              dataHelpId="field-requirements"
+            >
               <Textarea 
                 id="requirements"
                 placeholder="Liste os requisitos técnicos, qualificações necessárias, certificações, etc..."
@@ -396,7 +435,7 @@ const CreateTR = () => {
                 value={formData.requirements}
                 onChange={(e) => handleFieldChange("requirements", e.target.value)}
               />
-            </div>
+            </FormField>
           </div>
         );
 
@@ -405,18 +444,34 @@ const CreateTR = () => {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="technical_criteria">Critérios Técnicos *</Label>
+                <FormField
+                  label="Critérios Técnicos"
+                  helpText="Defina os critérios técnicos para avaliação das propostas. Mínimo de 30 caracteres."
+                  error={fieldErrors.technical_criteria}
+                  success={formData.technical_criteria.length >= 30}
+                  required
+                  htmlFor="technical_criteria"
+                  dataHelpId="field-technical-criteria"
+                >
                   <Textarea 
                     id="technical_criteria"
                     placeholder="Defina os critérios técnicos para avaliação das propostas..."
                     rows={4}
                     value={formData.technical_criteria}
                     onChange={(e) => handleFieldChange("technical_criteria", e.target.value)}
+                    className={fieldErrors.technical_criteria ? "border-destructive" : formData.technical_criteria.length >= 30 ? "border-success" : ""}
                   />
-                </div>
-                <div>
-                  <Label htmlFor="technical_weight">Peso Técnico (%)</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formData.technical_criteria.length}/30 caracteres mínimos
+                  </p>
+                </FormField>
+                
+                <FormField
+                  label="Peso Técnico (%)"
+                  helpText="Defina o peso percentual para os critérios técnicos"
+                  htmlFor="technical_weight"
+                  dataHelpId="field-technical-weight"
+                >
                   <Input 
                     id="technical_weight"
                     type="number"
@@ -425,22 +480,38 @@ const CreateTR = () => {
                     value={formData.technical_weight}
                     onChange={(e) => handleFieldChange("technical_weight", parseInt(e.target.value) || 0)}
                   />
-                </div>
+                </FormField>
               </div>
               
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="experience_criteria">Critérios de Experiência *</Label>
+                <FormField
+                  label="Critérios de Experiência"
+                  helpText="Defina os critérios de experiência e qualificação. Mínimo de 20 caracteres."
+                  error={fieldErrors.experience_criteria}
+                  success={formData.experience_criteria.length >= 20}
+                  required
+                  htmlFor="experience_criteria"
+                  dataHelpId="field-experience-criteria"
+                >
                   <Textarea 
                     id="experience_criteria"
                     placeholder="Defina os critérios de experiência e qualificação..."
                     rows={4}
                     value={formData.experience_criteria}
                     onChange={(e) => handleFieldChange("experience_criteria", e.target.value)}
+                    className={fieldErrors.experience_criteria ? "border-destructive" : formData.experience_criteria.length >= 20 ? "border-success" : ""}
                   />
-                </div>
-                <div>
-                  <Label htmlFor="experience_weight">Peso Experiência (%)</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {formData.experience_criteria.length}/20 caracteres mínimos
+                  </p>
+                </FormField>
+                
+                <FormField
+                  label="Peso Experiência (%)"
+                  helpText="Defina o peso percentual para os critérios de experiência"
+                  htmlFor="experience_weight"
+                  dataHelpId="field-experience-weight"
+                >
                   <Input 
                     id="experience_weight"
                     type="number"
@@ -449,15 +520,24 @@ const CreateTR = () => {
                     value={formData.experience_weight}
                     onChange={(e) => handleFieldChange("experience_weight", parseInt(e.target.value) || 0)}
                   />
-                </div>
+                </FormField>
               </div>
             </div>
             
             {(formData.technical_weight + formData.experience_weight !== 100) && (
-              <div className="flex items-center gap-2 p-3 bg-warning/10 border border-warning/20 rounded-lg">
-                <AlertCircle className="h-4 w-4 text-warning" />
-                <span className="text-sm text-warning">
+              <div className="flex items-center gap-2 p-3 bg-accent/10 border border-accent rounded-lg animate-in fade-in">
+                <AlertCircle className="h-4 w-4 text-accent-foreground" />
+                <span className="text-sm text-accent-foreground">
                   A soma dos pesos deve ser igual a 100% (atual: {formData.technical_weight + formData.experience_weight}%)
+                </span>
+              </div>
+            )}
+            
+            {(formData.technical_weight + formData.experience_weight === 100) && (
+              <div className="flex items-center gap-2 p-3 bg-success/10 border border-success rounded-lg animate-in fade-in">
+                <CheckCircle2 className="h-4 w-4 text-success" />
+                <span className="text-sm text-success-foreground">
+                  Perfeito! A soma dos pesos está correta (100%)
                 </span>
               </div>
             )}
@@ -468,24 +548,41 @@ const CreateTR = () => {
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="duration">Prazo de Execução</Label>
+              <FormField
+                label="Prazo de Execução"
+                helpText="Informe o prazo estimado para execução do projeto"
+                error={fieldErrors.duration}
+                success={!!formData.duration}
+                required
+                htmlFor="duration"
+                dataHelpId="field-duration"
+              >
                 <Input 
                   id="duration"
                   placeholder="Ex: 120 dias"
                   value={formData.duration}
                   onChange={(e) => handleFieldChange("duration", e.target.value)}
+                  className={fieldErrors.duration ? "border-destructive" : formData.duration ? "border-success" : ""}
                 />
-              </div>
-              <div>
-                <Label htmlFor="budget">Estimativa Orçamentária</Label>
+              </FormField>
+              
+              <FormField
+                label="Estimativa Orçamentária"
+                helpText="Informe o valor estimado para o projeto"
+                error={fieldErrors.budget}
+                success={!!formData.budget}
+                required
+                htmlFor="budget"
+                dataHelpId="field-budget"
+              >
                 <Input 
                   id="budget"
                   placeholder="Ex: R$ 500.000,00"
                   value={formData.budget}
                   onChange={(e) => handleFieldChange("budget", e.target.value)}
+                  className={fieldErrors.budget ? "border-destructive" : formData.budget ? "border-success" : ""}
                 />
-              </div>
+              </FormField>
             </div>
           </div>
         );
@@ -493,19 +590,51 @@ const CreateTR = () => {
       case 5:
         return (
           <div className="space-y-6">
-            <div className="bg-muted p-6 rounded-lg">
-              <h3 className="font-medium mb-4">Resumo do Termo de Referência</h3>
-              <div className="space-y-3 text-sm">
-                <div><strong>Título:</strong> {formData.title || "Não informado"}</div>
-                <div><strong>Tipo:</strong> {formData.type || "Não informado"}</div>
-                <div><strong>Template:</strong> {
-                  formData.template_id 
-                    ? templates?.find(t => t.id === formData.template_id)?.title || "Template selecionado"
-                    : "Não selecionado"
-                }</div>
-                <div><strong>Descrição:</strong> {formData.description || "Não informado"}</div>
-                <div><strong>Prazo:</strong> {formData.duration || "Não informado"}</div>
-                <div><strong>Orçamento:</strong> {formData.budget || "Não informado"}</div>
+            <div className="bg-gradient-to-br from-primary/5 to-accent/5 p-6 rounded-lg border-2 border-primary/20">
+              <div className="flex items-center gap-2 mb-4">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-lg">Resumo do Termo de Referência</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-3">
+                  <div className="bg-card p-3 rounded border">
+                    <strong className="text-muted-foreground">Título:</strong>
+                    <p className="mt-1">{formData.title || "Não informado"}</p>
+                  </div>
+                  <div className="bg-card p-3 rounded border">
+                    <strong className="text-muted-foreground">Tipo:</strong>
+                    <p className="mt-1">{formData.type || "Não informado"}</p>
+                  </div>
+                  <div className="bg-card p-3 rounded border">
+                    <strong className="text-muted-foreground">Template:</strong>
+                    <p className="mt-1">{
+                      formData.template_id 
+                        ? templates?.find(t => t.id === formData.template_id)?.title || "Template selecionado"
+                        : "Não selecionado"
+                    }</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="bg-card p-3 rounded border">
+                    <strong className="text-muted-foreground">Prazo:</strong>
+                    <p className="mt-1">{formData.duration || "Não informado"}</p>
+                  </div>
+                  <div className="bg-card p-3 rounded border">
+                    <strong className="text-muted-foreground">Orçamento:</strong>
+                    <p className="mt-1">{formData.budget || "Não informado"}</p>
+                  </div>
+                  <div className="bg-card p-3 rounded border">
+                    <strong className="text-muted-foreground">Pesos:</strong>
+                    <p className="mt-1">Técnico: {formData.technical_weight}% | Experiência: {formData.experience_weight}%</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 bg-card p-3 rounded border">
+                <strong className="text-muted-foreground">Descrição:</strong>
+                <p className="mt-1 text-sm">{formData.description || "Não informado"}</p>
               </div>
             </div>
           </div>
@@ -646,7 +775,6 @@ const CreateTR = () => {
       </main>
       
       <HelpTour />
-      <HelpDrawer onStartTour={handleStartTour} />
     </div>
   );
 };

@@ -23,20 +23,18 @@ export const basicInfoSchema = z.object({
 
 export const technicalSpecsSchema = z.object({
   scope: z.string()
-    .min(100, "O escopo deve ter pelo menos 100 caracteres")
+    .min(30, "O escopo deve ter pelo menos 30 caracteres")
     .max(5000, "O escopo não pode exceder 5000 caracteres"),
   
-  requirements: z.string()
-    .min(50, "Os requisitos devem ter pelo menos 50 caracteres")
-    .max(2000, "Os requisitos não podem exceder 2000 caracteres"),
+  requirements: z.string().optional(),
 });
 
 export const evaluationCriteriaSchema = z.object({
   technical_criteria: z.string()
-    .min(50, "Os critérios técnicos devem ter pelo menos 50 caracteres"),
+    .min(30, "Os critérios técnicos devem ter pelo menos 30 caracteres"),
   
   experience_criteria: z.string()
-    .min(30, "Os critérios de experiência devem ter pelo menos 30 caracteres"),
+    .min(20, "Os critérios de experiência devem ter pelo menos 20 caracteres"),
   
   technical_weight: z.number()
     .min(0, "O peso deve ser no mínimo 0")
@@ -45,7 +43,13 @@ export const evaluationCriteriaSchema = z.object({
   experience_weight: z.number()
     .min(0, "O peso deve ser no mínimo 0")
     .max(100, "O peso deve ser no máximo 100"),
-});
+}).refine(
+  (data) => data.technical_weight + data.experience_weight === 100,
+  {
+    message: "A soma dos pesos deve ser igual a 100%",
+    path: ["technical_weight"],
+  }
+);
 
 export const financialDetailsSchema = z.object({
   duration: z.string()
