@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
   SheetContent,
@@ -14,7 +17,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { HelpCircle, BookOpen, Video, MessageCircle } from 'lucide-react';
+import { HelpCircle, BookOpen, Video, MessageCircle, Sparkles, CheckCircle2, FileText, Clock } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface HelpDrawerProps {
@@ -72,59 +75,137 @@ export const HelpDrawer = ({ onStartTour }: HelpDrawerProps) => {
         <Button
           variant="outline"
           size="icon"
-          className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 transition-all ${
+          className={`fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-xl hover:shadow-2xl z-50 transition-all duration-300 hover:scale-110 bg-primary text-primary-foreground border-0 ${
             isPulsing ? 'animate-bounce' : ''
           }`}
           title="Ajuda"
+          data-help-id="help-drawer"
           onClick={() => setIsPulsing(false)}
         >
           <HelpCircle className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>Central de Ajuda</SheetTitle>
-          <SheetDescription>
-            Encontre respostas para suas dúvidas sobre o sistema
-          </SheetDescription>
+      <SheetContent className="w-full sm:max-w-xl overflow-hidden flex flex-col">
+        <SheetHeader className="pb-4 border-b">
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <SheetTitle className="text-xl">Central de Ajuda</SheetTitle>
+              <SheetDescription className="text-sm">
+                Guias e recursos para aproveitar ao máximo o sistema
+              </SheetDescription>
+            </div>
+          </div>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-120px)] mt-6 pr-4">
+        <ScrollArea className="flex-1 -mx-6 px-6 py-6">
           <div className="space-y-6">
             {/* Quick Actions */}
             {onStartTour && (
-              <div className="space-y-3">
-                <h3 className="font-semibold text-sm">Ações Rápidas</h3>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => {
-                    onStartTour();
-                    setOpen(false);
-                  }}
-                >
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Iniciar Tour Guiado
-                </Button>
-              </div>
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-base">Tour Guiado</CardTitle>
+                    <Badge variant="secondary" className="ml-auto">Recomendado</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <CardDescription className="text-sm">
+                    Aprenda a usar o sistema com um tour interativo passo a passo
+                  </CardDescription>
+                  <Button
+                    className="w-full shadow-sm"
+                    onClick={() => {
+                      onStartTour();
+                      setOpen(false);
+                    }}
+                  >
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Iniciar Tour Guiado
+                  </Button>
+                </CardContent>
+              </Card>
             )}
+
+            {/* Quick Tips */}
+            <div className="space-y-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-success" />
+                Dicas Rápidas
+              </h3>
+              <div className="grid gap-3">
+                <Card className="border-success/20">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex gap-3">
+                      <FileText className="h-5 w-5 text-success shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium mb-1">Use Templates</p>
+                        <p className="text-xs text-muted-foreground">
+                          Economize tempo usando modelos pré-configurados
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="border-primary/20">
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex gap-3">
+                      <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium mb-1">Salvamento Automático</p>
+                        <p className="text-xs text-muted-foreground">
+                          Suas alterações são salvas automaticamente a cada 30s
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            <Separator />
 
             {/* FAQs */}
             <div className="space-y-3">
-              <h3 className="font-semibold text-sm">Perguntas Frequentes</h3>
+              <h3 className="font-semibold flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-primary" />
+                Perguntas Frequentes
+              </h3>
               <Accordion type="single" collapsible className="w-full">
                 {faqs.map((faq, index) => (
                   <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger className="text-left text-sm">
+                    <AccordionTrigger className="text-left text-sm hover:text-primary transition-colors">
                       {faq.question}
                     </AccordionTrigger>
-                    <AccordionContent className="text-sm text-muted-foreground">
+                    <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>
                 ))}
-            </Accordion>
-          </div>
+              </Accordion>
+            </div>
+
+            <Separator />
+
+            {/* Support */}
+            <Card className="border-muted">
+              <CardContent className="pt-6">
+                <div className="text-center space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Não encontrou o que procura?
+                  </p>
+                  <Button variant="outline" className="w-full" asChild>
+                    <a href="mailto:suporte@example.com">
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Entrar em Contato
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </ScrollArea>
       </SheetContent>
