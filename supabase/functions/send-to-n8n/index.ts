@@ -30,6 +30,7 @@ interface N8NPayload {
   };
   request_id: string;
   timestamp: string;
+  callback_url: string;
 }
 
 const corsHeaders = {
@@ -130,7 +131,9 @@ serve(async (req) => {
 
     console.log('TR record created with ID:', trRecord.id);
 
-    // 2. Prepare N8N payload
+    // 2. Prepare N8N payload with callback URL
+    const callbackUrl = `${supabaseUrl}/functions/v1/n8n-callback`;
+    
     const n8nPayload: N8NPayload = {
       tr_data,
       template_data: {
@@ -146,87 +149,54 @@ serve(async (req) => {
       },
       request_id: requestId,
       timestamp: new Date().toISOString(),
+      callback_url: callbackUrl,
     };
+    
+    console.log('Callback URL configured:', callbackUrl);
 
-    // 3. Start background processing with N8N
+    // 3. Start background processing with N8N (asynchronous callback mode)
     const backgroundProcessing = async () => {
-      console.log('Background task started - Sending payload to N8N:', JSON.stringify(n8nPayload, null, 2));
-      
-      const n8nWebhookUrl = 'https://postgres-n8n.wuzmwk.easypanel.host/webhook/00c47da5-c066-48c5-8002-0719d0a0a6da';
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes timeout
-
-      let n8nResponse;
-      let n8nResult;
-      
       try {
-        console.log('[Background] Sending request to N8N webhook...');
+        console.log('Starting background N8N processing...');
+        console.log('Sending payload to N8N with callback URL:', JSON.stringify(n8nPayload, null, 2));
         
-        n8nResponse = await fetch(n8nWebhookUrl, {
+        const n8nWebhookUrl = 'https://postgres-n8n.wuzmwk.easypanel.host/webhook/00c47da5-c066-48c5-8002-0719d0a0a6da';
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes timeout
+
+        const n8nResponse = await fetch(n8nWebhookUrl, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(n8nPayload),
           signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
-        
-        console.log('[Background] N8N webhook response status:', n8nResponse.status);
-        console.log('[Background] N8N webhook response headers:', Object.fromEntries(n8nResponse.headers.entries()));
-        
-        n8nResult = await n8nResponse.json();
-        
-        console.log('[Background] N8N response received:', JSON.stringify(n8nResult, null, 2));
-        console.log('[Background] N8N response ok:', n8nResponse.ok);
-        console.log('[Background] N8N result is array:', Array.isArray(n8nResult));
-        console.log('[Background] N8N result length:', Array.isArray(n8nResult) ? n8nResult.length : 'N/A');
-        
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
-        
-        console.error('[Background] N8N request failed:', fetchError);
-        
-        // Update TR with error status
-        await supabase
-          .from('termos_referencia')
-          .update({
-            status: 'erro',
-            error_message: `Erro ao processar documento: ${fetchError.message || 'Timeout - processamento excedeu 3 minutos'}`,
-            n8n_processed_at: new Date().toISOString(),
-          })
-          .eq('id', trRecord.id);
+        console.log('N8N webhook accepted request, status:', n8nResponse.status);
 
-        console.log('[Background] TR updated with error status due to N8N failure');
-        return;
-      }
+        if (!n8nResponse.ok) {
+          throw new Error(`N8N retornou status ${n8nResponse.status}`);
+        }
 
-      // Update TR record with N8N response
-      const isSuccess = n8nResponse.ok && Array.isArray(n8nResult) && n8nResult.length > 0;
-      const googleDocsUrl = isSuccess ? n8nResult[0]?.localizacao : null;
-      
-      console.log('[Background] Processing N8N response:');
-      console.log('[Background]   - isSuccess:', isSuccess);
-      console.log('[Background]   - googleDocsUrl:', googleDocsUrl);
-      console.log('[Background]   - Status to set:', isSuccess ? 'concluido' : 'erro');
-      
-      const { error: updateError } = await supabase
-        .from('termos_referencia')
-        .update({
-          status: isSuccess ? 'concluido' : 'erro',
-          google_docs_url: googleDocsUrl,
-          n8n_response: n8nResult,
-          n8n_processed_at: new Date().toISOString(),
-          error_message: !isSuccess ? JSON.stringify(n8nResult) : null,
-        })
-        .eq('id', trRecord.id);
+        console.log('N8N will process asynchronously and callback to:', callbackUrl);
 
-      if (updateError) {
-        console.error('[Background] Error updating TR:', updateError);
-      } else {
-        console.log('[Background] TR successfully updated with status:', isSuccess ? 'concluido' : 'erro');
+      } catch (error) {
+        console.error('Error sending to N8N:', error);
+        
+        // Update TR with error status if request to N8N fails
+        try {
+          await supabase
+            .from('termos_referencia')
+            .update({
+              status: 'erro',
+              error_message: `Erro ao enviar para N8N: ${error.message}`,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', trRecord.id);
+        } catch (updateError) {
+          console.error('Failed to update TR with error status:', updateError);
+        }
       }
     };
 

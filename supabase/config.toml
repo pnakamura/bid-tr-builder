@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.generate-tr-with-ai]
 verify_jwt = true
+
+[functions.n8n-callback]
+verify_jwt = false
