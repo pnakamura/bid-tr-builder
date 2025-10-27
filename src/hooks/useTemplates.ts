@@ -191,7 +191,7 @@ export function useDownloadTemplate() {
 
       // Construct full URL (signedUrl is relative)
       const supabaseUrl = 'https://dvqnlnxkwcrxbctujajl.supabase.co';
-      const fullUrl = `${supabaseUrl}/storage/v1${data.signedUrl}`;
+      const fullUrl = `${supabaseUrl}${data.signedUrl}`;
 
       // Trigger download using fetch to avoid Chrome blocking
       const response = await fetch(fullUrl);
