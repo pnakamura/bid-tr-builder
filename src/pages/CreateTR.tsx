@@ -237,7 +237,7 @@ const CreateTR = () => {
 
     setIsSubmitting(true);
     try {
-      await sendToN8N.mutateAsync({
+      const result = await sendToN8N.mutateAsync({
         tr_data: {
           title: formData.title,
           type: formData.type,
@@ -257,6 +257,17 @@ const CreateTR = () => {
 
       // Clear saved draft after successful submission
       localStorage.removeItem('tr-draft');
+      
+      // Show success message and redirect
+      toast({
+        title: "TR Armazenado no Sistema",
+        description: "Você pode acessá-lo na página 'Meus TRs'",
+      });
+      
+      // Redirect to Meus TRs page after 2 seconds
+      setTimeout(() => {
+        window.location.href = '/meus-trs';
+      }, 2000);
       
     } catch (error) {
       console.error('Error sending TR to N8N:', error);

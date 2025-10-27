@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/EmptyState";
+import { useTRStats } from "@/hooks/useTRStats";
 
 export const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const { stats, isLoading } = useTRStats();
 
   return (
     <div className="animate-fade-in">
@@ -59,36 +61,36 @@ export const Dashboard = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {[
             {
-              title: "TRs Ativos",
-              value: 0,
-              description: "Nenhum TR ativo no momento",
+              title: "Total de TRs",
+              value: isLoading ? "..." : (stats?.total || 0),
+              description: isLoading ? "Carregando..." : `${stats?.total || 0} TRs criados`,
               icon: FileText,
               color: "text-primary",
               bgColor: "bg-primary/10"
             },
             {
-              title: "Em Elaboração",
-              value: 0,
-              description: "Nenhum TR em elaboração",
+              title: "Processando",
+              value: isLoading ? "..." : (stats?.processando || 0),
+              description: isLoading ? "Carregando..." : `${stats?.processando || 0} em processamento`,
               icon: Clock,
               color: "text-yellow-600",
               bgColor: "bg-yellow-100"
             },
             {
-              title: "Finalizados",
-              value: 0,
-              description: "Nenhum TR finalizado",
+              title: "Concluídos",
+              value: isLoading ? "..." : (stats?.concluidos || 0),
+              description: isLoading ? "Carregando..." : `${stats?.concluidos || 0} finalizados`,
               icon: CheckCircle,
               color: "text-success",
               bgColor: "bg-success/10"
             },
             {
-              title: "Templates",
-              value: 1,
-              description: "Template disponível",
+              title: "Com Erro",
+              value: isLoading ? "..." : (stats?.erros || 0),
+              description: isLoading ? "Carregando..." : `${stats?.erros || 0} com erro`,
               icon: FileText,
-              color: "text-accent-foreground",
-              bgColor: "bg-accent/20"
+              color: "text-destructive",
+              bgColor: "bg-destructive/10"
             }
           ].map((stat, index) => (
             <Card key={stat.title} className="hover:shadow-md transition-all duration-300 hover-scale border-l-4 border-l-transparent hover:border-l-primary">

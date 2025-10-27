@@ -422,6 +422,92 @@ export type Database = {
           },
         ]
       }
+      termos_referencia: {
+        Row: {
+          budget: string
+          created_at: string
+          created_by: string
+          description: string
+          duration: string
+          error_message: string | null
+          experience_criteria: string
+          experience_weight: number
+          google_docs_url: string | null
+          id: string
+          n8n_processed_at: string | null
+          n8n_request_id: string
+          n8n_response: Json | null
+          objective: string
+          requirements: string | null
+          scope: string
+          status: string
+          technical_criteria: string
+          technical_weight: number
+          template_id: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          budget: string
+          created_at?: string
+          created_by: string
+          description: string
+          duration: string
+          error_message?: string | null
+          experience_criteria: string
+          experience_weight?: number
+          google_docs_url?: string | null
+          id?: string
+          n8n_processed_at?: string | null
+          n8n_request_id: string
+          n8n_response?: Json | null
+          objective: string
+          requirements?: string | null
+          scope: string
+          status?: string
+          technical_criteria: string
+          technical_weight?: number
+          template_id?: string | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: string
+          created_at?: string
+          created_by?: string
+          description?: string
+          duration?: string
+          error_message?: string | null
+          experience_criteria?: string
+          experience_weight?: number
+          google_docs_url?: string | null
+          id?: string
+          n8n_processed_at?: string | null
+          n8n_request_id?: string
+          n8n_response?: Json | null
+          objective?: string
+          requirements?: string | null
+          scope?: string
+          status?: string
+          technical_criteria?: string
+          technical_weight?: number
+          template_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "termos_referencia_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

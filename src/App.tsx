@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import CreateTR from "./pages/CreateTR";
 import Templates from "./pages/Templates";
 import Reports from "./pages/Reports";
+import MeusTRs from "./pages/MeusTRs";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/create-tr" element={<ProtectedRoute><CreateTR /></ProtectedRoute>} />
               <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+              <Route path="/meus-trs" element={<ProtectedRoute><MeusTRs /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

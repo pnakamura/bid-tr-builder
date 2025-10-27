@@ -25,7 +25,9 @@ interface SendToN8NPayload {
 interface SendToN8NResponse {
   success: boolean;
   request_id: string;
+  tr_id: string;
   message: string;
+  google_docs_url?: string;
   n8n_response?: any;
   error?: string;
 }
@@ -47,9 +49,14 @@ export const useSendToN8N = () => {
     },
     onSuccess: (data) => {
       if (data.success) {
+        const message = data.google_docs_url 
+          ? `${data.message}\n\n📄 Documento disponível no Google Docs\nID: ${data.request_id.slice(0, 8)}...`
+          : data.message;
+          
         toast({
-          title: "TR Enviado com Sucesso!",
-          description: `${data.message} (ID: ${data.request_id.slice(0, 8)}...)`,
+          title: "✅ TR Criado com Sucesso!",
+          description: message,
+          duration: 8000,
         });
       } else {
         throw new Error(data.error || 'Erro desconhecido');

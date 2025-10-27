@@ -2,11 +2,6 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.4';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
 interface N8NPayload {
   tr_data: {
     title: string;
@@ -22,22 +17,25 @@ interface N8NPayload {
     duration: string;
     budget: string;
   };
-  template: {
+  template_data: {
     id: string;
     title: string;
     category: string;
-    type: string;
-    file_download_url: string;
-    metadata: Record<string, any>;
+    file_url?: string;
   };
-  user: {
+  user_data: {
     id: string;
-    name: string;
     email: string;
+    nome: string;
   };
-  timestamp: string;
   request_id: string;
+  timestamp: string;
 }
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -46,13 +44,14 @@ serve(async (req) => {
   }
 
   try {
+    // Get Supabase credentials
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Create Supabase client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { tr_data, template_id } = await req.json();
-    
-    // Get user info from auth header
+    // Get user from auth header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
@@ -63,7 +62,21 @@ serve(async (req) => {
     );
 
     if (authError || !user) {
-      throw new Error('Invalid user token');
+      throw new Error('Unauthorized');
+    }
+
+    // Parse request body
+    const { tr_data, template_id } = await req.json();
+
+    // Fetch template information
+    const { data: template, error: templateError } = await supabase
+      .from('templates')
+      .select('*')
+      .eq('id', template_id)
+      .single();
+
+    if (templateError || !template) {
+      throw new Error('Template not found');
     }
 
     // Get user profile
@@ -73,90 +86,162 @@ serve(async (req) => {
       .eq('id', user.id)
       .single();
 
-    // Get template info
-    const { data: template, error: templateError } = await supabase
-      .from('templates')
-      .select('*')
-      .eq('id', template_id)
+    // Generate signed URL if template has a file
+    let fileUrl = null;
+    if (template.file_path) {
+      const { data: signedUrlData } = await supabase.storage
+        .from('templates')
+        .createSignedUrl(template.file_path, 3600);
+      
+      fileUrl = signedUrlData?.signedUrl || null;
+    }
+
+    // Generate unique request ID
+    const requestId = crypto.randomUUID();
+
+    // 1. INSERT TR into database with 'processando' status BEFORE sending to N8N
+    const { data: trRecord, error: insertError } = await supabase
+      .from('termos_referencia')
+      .insert({
+        created_by: user.id,
+        template_id: template_id,
+        n8n_request_id: requestId,
+        status: 'processando',
+        title: tr_data.title,
+        type: tr_data.type,
+        description: tr_data.description,
+        objective: tr_data.objective,
+        scope: tr_data.scope,
+        requirements: tr_data.requirements,
+        technical_criteria: tr_data.technical_criteria,
+        experience_criteria: tr_data.experience_criteria,
+        technical_weight: tr_data.technical_weight,
+        experience_weight: tr_data.experience_weight,
+        duration: tr_data.duration,
+        budget: tr_data.budget,
+      })
+      .select()
       .single();
 
-    if (templateError || !template) {
-      throw new Error('Template not found or access denied');
+    if (insertError) {
+      console.error('Error inserting TR:', insertError);
+      throw new Error(`Failed to create TR record: ${insertError.message}`);
     }
 
-    // Generate signed URL for template file
-    let fileDownloadUrl = '';
-    if (template.file_path) {
-      const { data: signedUrl } = await supabase.storage
-        .from('templates')
-        .createSignedUrl(template.file_path, 3600); // 1 hour expiry
+    console.log('TR record created with ID:', trRecord.id);
 
-      if (signedUrl) {
-        fileDownloadUrl = signedUrl.signedUrl;
-      }
-    }
-
-    // Prepare N8N payload
-    const requestId = crypto.randomUUID();
-    const payload: N8NPayload = {
+    // 2. Prepare N8N payload
+    const n8nPayload: N8NPayload = {
       tr_data,
-      template: {
+      template_data: {
         id: template.id,
         title: template.title,
         category: template.category,
-        type: template.type,
-        file_download_url: fileDownloadUrl,
-        metadata: template.metadata || {}
+        file_url: fileUrl || undefined,
       },
-      user: {
+      user_data: {
         id: user.id,
-        name: profile?.nome || user.email || 'Unknown',
-        email: profile?.email || user.email || ''
+        email: profile?.email || user.email || '',
+        nome: profile?.nome || user.user_metadata?.nome || user.email || '',
       },
+      request_id: requestId,
       timestamp: new Date().toISOString(),
-      request_id: requestId
     };
 
-    console.log('Sending payload to N8N:', JSON.stringify(payload, null, 2));
+    console.log('Sending payload to N8N:', JSON.stringify(n8nPayload, null, 2));
 
-    // Send to N8N webhook
-    const n8nResponse = await fetch(
-      'https://postgres-n8n.wuzmwk.easypanel.host/webhook/00c47da5-c066-48c5-8002-0719d0a0a6da',
-      {
+    // 3. Send to N8N webhook with timeout
+    const n8nWebhookUrl = 'https://n8n.fgvsaude.org/webhook/08e43d5e-1fef-4cc5-ba49-ec55ab02b49c';
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+    let n8nResponse;
+    let n8nResult;
+    
+    try {
+      n8nResponse = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
-      }
-    );
+        body: JSON.stringify(n8nPayload),
+        signal: controller.signal,
+      });
 
-    if (!n8nResponse.ok) {
-      throw new Error(`N8N webhook failed: ${n8nResponse.status} ${n8nResponse.statusText}`);
+      clearTimeout(timeoutId);
+      
+      n8nResult = await n8nResponse.json();
+      
+      console.log('N8N response received:', n8nResult);
+      
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      console.error('N8N request failed:', fetchError);
+      
+      // Update TR with error status
+      await supabase
+        .from('termos_referencia')
+        .update({
+          status: 'erro',
+          error_message: fetchError.message || 'Timeout ou erro ao conectar com N8N',
+          n8n_processed_at: new Date().toISOString(),
+        })
+        .eq('id', trRecord.id);
+
+      throw new Error(`N8N request failed: ${fetchError.message}`);
     }
 
-    const n8nResult = await n8nResponse.json().catch(() => ({}));
+    // 4. Update TR record with N8N response
+    const isSuccess = n8nResponse.ok && Array.isArray(n8nResult) && n8nResult.length > 0;
+    const googleDocsUrl = isSuccess ? n8nResult[0]?.localizacao : null;
     
-    console.log('N8N response:', n8nResult);
+    console.log('Updating TR record with status:', isSuccess ? 'concluido' : 'erro');
+    
+    const { error: updateError } = await supabase
+      .from('termos_referencia')
+      .update({
+        status: isSuccess ? 'concluido' : 'erro',
+        google_docs_url: googleDocsUrl,
+        n8n_response: n8nResult,
+        n8n_processed_at: new Date().toISOString(),
+        error_message: !isSuccess ? JSON.stringify(n8nResult) : null,
+      })
+      .eq('id', trRecord.id);
 
-    return new Response(JSON.stringify({
-      success: true,
-      request_id: requestId,
-      message: 'TR enviado com sucesso para processamento',
-      n8n_response: n8nResult
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    if (updateError) {
+      console.error('Error updating TR:', updateError);
+    }
+
+    // 5. Return success response to frontend
+    return new Response(
+      JSON.stringify({
+        success: true,
+        request_id: requestId,
+        tr_id: trRecord.id,
+        message: isSuccess ? 'TR criado e documento gerado com sucesso!' : 'TR criado mas houve erro no processamento',
+        n8n_response: n8nResult,
+        google_docs_url: googleDocsUrl,
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      }
+    );
 
   } catch (error) {
     console.error('Error in send-to-n8n function:', error);
     
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message || 'Erro interno do servidor'
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message || 'Unknown error occurred',
+      }),
+      {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      }
+    );
   }
 });

@@ -29,16 +29,37 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Search Bar - Only on larger screens */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar TRs, templates, documentos..."
-                className="pl-10 bg-background/50 border-border/50 focus:border-primary/50 transition-colors"
-              />
-            </div>
-          </div>
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 max-w-md mx-8">
+            <Button
+              variant={location.pathname === "/" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/">Início</Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/meus-trs" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/meus-trs">Meus TRs</Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/templates" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/templates">Templates</Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/reports" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/reports">Relatórios</Link>
+            </Button>
+          </nav>
 
           {/* Auto-save indicator for create page */}
           {isCreatePage && (
