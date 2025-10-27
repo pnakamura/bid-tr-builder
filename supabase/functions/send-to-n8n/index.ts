@@ -160,6 +160,8 @@ serve(async (req) => {
     let n8nResult;
     
     try {
+      console.log('Sending request to N8N webhook...');
+      
       n8nResponse = await fetch(n8nWebhookUrl, {
         method: 'POST',
         headers: {
@@ -171,9 +173,15 @@ serve(async (req) => {
 
       clearTimeout(timeoutId);
       
+      console.log('N8N webhook response status:', n8nResponse.status);
+      console.log('N8N webhook response headers:', Object.fromEntries(n8nResponse.headers.entries()));
+      
       n8nResult = await n8nResponse.json();
       
-      console.log('N8N response received:', n8nResult);
+      console.log('N8N response received:', JSON.stringify(n8nResult, null, 2));
+      console.log('N8N response ok:', n8nResponse.ok);
+      console.log('N8N result is array:', Array.isArray(n8nResult));
+      console.log('N8N result length:', Array.isArray(n8nResult) ? n8nResult.length : 'N/A');
       
     } catch (fetchError) {
       clearTimeout(timeoutId);
@@ -211,7 +219,10 @@ serve(async (req) => {
     const isSuccess = n8nResponse.ok && Array.isArray(n8nResult) && n8nResult.length > 0;
     const googleDocsUrl = isSuccess ? n8nResult[0]?.localizacao : null;
     
-    console.log('Updating TR record with status:', isSuccess ? 'concluido' : 'erro');
+    console.log('Processing N8N response:');
+    console.log('  - isSuccess:', isSuccess);
+    console.log('  - googleDocsUrl:', googleDocsUrl);
+    console.log('  - Status to set:', isSuccess ? 'concluido' : 'erro');
     
     const { error: updateError } = await supabase
       .from('termos_referencia')
@@ -226,18 +237,24 @@ serve(async (req) => {
 
     if (updateError) {
       console.error('Error updating TR:', updateError);
+    } else {
+      console.log('TR successfully updated with status:', isSuccess ? 'concluido' : 'erro');
     }
 
     // 5. Return success response to frontend
+    const responsePayload = {
+      success: true,
+      request_id: requestId,
+      tr_id: trRecord.id,
+      message: isSuccess ? 'TR criado e documento gerado com sucesso!' : 'TR criado mas houve erro no processamento',
+      n8n_response: n8nResult,
+      google_docs_url: googleDocsUrl,
+    };
+    
+    console.log('Returning response to frontend:', JSON.stringify(responsePayload, null, 2));
+    
     return new Response(
-      JSON.stringify({
-        success: true,
-        request_id: requestId,
-        tr_id: trRecord.id,
-        message: isSuccess ? 'TR criado e documento gerado com sucesso!' : 'TR criado mas houve erro no processamento',
-        n8n_response: n8nResult,
-        google_docs_url: googleDocsUrl,
-      }),
+      JSON.stringify(responsePayload),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
