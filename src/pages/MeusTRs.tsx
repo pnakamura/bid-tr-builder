@@ -55,17 +55,20 @@ const MeusTRs = () => {
       processando: {
         variant: "default" as const,
         color: "bg-yellow-500",
-        label: "Processando"
+        label: "Processando",
+        animate: true
       },
       concluido: {
         variant: "default" as const,
         color: "bg-green-500",
-        label: "Concluído"
+        label: "Concluído",
+        animate: false
       },
       erro: {
         variant: "destructive" as const,
         color: "bg-red-500",
-        label: "Erro"
+        label: "Erro",
+        animate: false
       }
     };
 
@@ -73,7 +76,9 @@ const MeusTRs = () => {
 
     return (
       <Badge variant={statusConfig.variant} className="flex items-center gap-1 w-fit">
-        <span className={`w-2 h-2 rounded-full ${statusConfig.color}`} />
+        <span 
+          className={`w-2 h-2 rounded-full ${statusConfig.color} ${statusConfig.animate ? 'animate-pulse' : ''}`} 
+        />
         {statusConfig.label}
       </Badge>
     );

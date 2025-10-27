@@ -27,6 +27,8 @@ interface SendToN8NResponse {
   request_id: string;
   tr_id: string;
   message: string;
+  status?: string;
+  processing?: boolean;
   google_docs_url?: string;
   n8n_response?: any;
   error?: string;
@@ -51,21 +53,27 @@ export const useSendToN8N = () => {
     },
     onSuccess: (data) => {
       if (data.success) {
-        let message = data.message;
-        
-        // Check if N8N is available and document was generated
-        if (data.google_docs_url) {
-          message = `${message}\n\n📄 Documento disponível no Google Docs\nID: ${data.request_id.slice(0, 8)}...`;
+        // Check if document is being processed asynchronously
+        if (data.processing || data.status === 'processando') {
+          toast({
+            title: "✅ TR Criado!",
+            description: "Seu TR foi criado e o documento está sendo processado. Você pode acompanhar o status na página 'Meus TRs'.",
+            duration: 8000,
+          });
+        } else if (data.google_docs_url) {
+          // Legacy: immediate success with document URL
+          toast({
+            title: "✅ TR Criado com Sucesso!",
+            description: `${data.message}\n\n📄 Documento disponível no Google Docs`,
+            duration: 10000,
+          });
         } else if (data.warning) {
-          message = `${message}\n\n⚠️ ${data.warning}`;
+          toast({
+            title: "⚠️ TR Salvo",
+            description: `${data.message}\n\n⚠️ ${data.warning}`,
+            duration: 10000,
+          });
         }
-          
-        toast({
-          title: data.google_docs_url ? "✅ TR Criado com Sucesso!" : "⚠️ TR Salvo",
-          description: message,
-          duration: 10000,
-          variant: data.warning ? "default" : "default",
-        });
       } else {
         throw new Error(data.error || 'Erro desconhecido');
       }
