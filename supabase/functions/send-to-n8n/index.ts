@@ -180,17 +180,31 @@ serve(async (req) => {
       
       console.error('N8N request failed:', fetchError);
       
-      // Update TR with error status
+      // Update TR with error status but don't throw - TR is already saved
       await supabase
         .from('termos_referencia')
         .update({
-          status: 'erro',
-          error_message: fetchError.message || 'Timeout ou erro ao conectar com N8N',
+          status: 'rascunho',
+          error_message: `Serviço N8N temporariamente indisponível: ${fetchError.message || 'Erro de conexão'}`,
           n8n_processed_at: new Date().toISOString(),
         })
         .eq('id', trRecord.id);
 
-      throw new Error(`N8N request failed: ${fetchError.message}`);
+      // Return success with warning - TR was saved successfully
+      return new Response(
+        JSON.stringify({
+          success: true,
+          request_id: requestId,
+          tr_id: trRecord.id,
+          message: 'TR salvo com sucesso! O processamento do documento será feito posteriormente.',
+          warning: 'O serviço de geração de documentos está temporariamente indisponível.',
+          n8n_available: false,
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
     }
 
     // 4. Update TR record with N8N response
