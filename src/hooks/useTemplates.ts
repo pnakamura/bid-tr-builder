@@ -189,12 +189,12 @@ export function useDownloadTemplate() {
 
       if (error) throw error;
 
-      // Construct full URL (signedUrl is relative)
-      const supabaseUrl = 'https://dvqnlnxkwcrxbctujajl.supabase.co';
-      const fullUrl = `${supabaseUrl}${data.signedUrl}`;
+      // Use the signed URL directly (it's already absolute)
+      const downloadUrl = data.signedUrl;
+      console.log('🔗 Download URL:', downloadUrl);
 
       // Trigger download using fetch to avoid Chrome blocking
-      const response = await fetch(fullUrl);
+      const response = await fetch(downloadUrl);
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       
@@ -208,7 +208,7 @@ export function useDownloadTemplate() {
       // Clean up blob URL
       window.URL.revokeObjectURL(blobUrl);
 
-      return fullUrl;
+      return downloadUrl;
     },
     onSuccess: (_, template) => {
       toast({
