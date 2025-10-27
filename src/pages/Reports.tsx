@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/EmptyState";
 import { 
   BarChart3, 
   PieChart, 
@@ -22,37 +23,6 @@ import {
 const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("month");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
-
-  // Mock data for reports
-  const statsData = {
-    totalTRs: 156,
-    activeTRs: 24,
-    completedTRs: 42,
-    averageTime: 12.5,
-    efficiency: 89
-  };
-
-  const departmentData = [
-    { name: "Engenharia", active: 8, completed: 15, pending: 3 },
-    { name: "TI", active: 6, completed: 12, pending: 2 },
-    { name: "Administrativo", active: 4, completed: 8, pending: 1 },
-    { name: "Jurídico", active: 6, completed: 7, pending: 2 }
-  ];
-
-  const timelineData = [
-    { month: "Jan", created: 12, completed: 8 },
-    { month: "Fev", created: 15, completed: 12 },
-    { month: "Mar", created: 18, completed: 15 },
-    { month: "Abr", created: 14, completed: 16 },
-    { month: "Mai", created: 16, completed: 14 }
-  ];
-
-  const recentActivity = [
-    { id: 1, action: "TR Consultoria TI finalizado", user: "João Silva", time: "2h atrás", type: "completed" },
-    { id: 2, action: "TR Obras Pavimentação em revisão", user: "Maria Santos", time: "4h atrás", type: "review" },
-    { id: 3, action: "Novo TR Equipamentos criado", user: "Pedro Costa", time: "6h atrás", type: "created" },
-    { id: 4, action: "TR Consultoria aprovado", user: "Ana Lima", time: "1d atrás", type: "approved" }
-  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -117,40 +87,40 @@ const Reports = () => {
             {[
               {
                 title: "Total de TRs",
-                value: statsData.totalTRs,
-                change: "+12%",
+                value: 0,
+                change: "—",
                 icon: FileText,
                 color: "text-primary",
                 bgColor: "bg-primary/10"
               },
               {
                 title: "TRs Ativos",
-                value: statsData.activeTRs,
-                change: "+5%",
+                value: 0,
+                change: "—",
                 icon: Clock,
                 color: "text-yellow-600",
                 bgColor: "bg-yellow-100"
               },
               {
                 title: "Finalizados",
-                value: statsData.completedTRs,
-                change: "+8%",
+                value: 0,
+                change: "—",
                 icon: CheckCircle,
                 color: "text-success",
                 bgColor: "bg-success/10"
               },
               {
                 title: "Tempo Médio",
-                value: `${statsData.averageTime} dias`,
-                change: "-2d",
+                value: "— dias",
+                change: "—",
                 icon: TrendingUp,
                 color: "text-accent-foreground",
                 bgColor: "bg-accent/20"
               },
               {
                 title: "Eficiência",
-                value: `${statsData.efficiency}%`,
-                change: "+3%",
+                value: "—%",
+                change: "—",
                 icon: BarChart3,
                 color: "text-success",
                 bgColor: "bg-success/10"
@@ -183,71 +153,24 @@ const Reports = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <PieChart className="h-5 w-5" />
-                      Status dos TRs
-                    </CardTitle>
-                    <CardDescription>Distribuição por status atual</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {[
-                        { status: "Em Elaboração", count: 24, color: "bg-yellow-500", percentage: 35 },
-                        { status: "Em Revisão", count: 18, color: "bg-blue-500", percentage: 26 },
-                        { status: "Aprovado", count: 15, color: "bg-green-500", percentage: 22 },
-                        { status: "Finalizado", count: 12, color: "bg-gray-500", percentage: 17 }
-                      ].map((item) => (
-                        <div key={item.status} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                            <span className="text-sm font-medium">{item.status}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">{item.count}</span>
-                            <Badge variant="outline">{item.percentage}%</Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5" />
-                      Tipos de Contratação
-                    </CardTitle>
-                    <CardDescription>Distribuição por categoria</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {[
-                        { type: "Consultoria", count: 32, percentage: 45 },
-                        { type: "Obras", count: 18, percentage: 25 },
-                        { type: "Equipamentos", count: 15, percentage: 21 },
-                        { type: "Serviços", count: 6, percentage: 9 }
-                      ].map((item) => (
-                        <div key={item.type} className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{item.type}</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-24 bg-muted rounded-full h-2">
-                              <div 
-                                className="bg-primary h-2 rounded-full" 
-                                style={{ width: `${item.percentage}%` }}
-                              ></div>
-                            </div>
-                            <span className="text-sm text-muted-foreground w-8">{item.count}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PieChart className="h-5 w-5" />
+                    Visão Geral
+                  </CardTitle>
+                  <CardDescription>Análise consolidada do sistema</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <EmptyState
+                    icon={BarChart3}
+                    title="Nenhum dado disponível"
+                    description="Comece criando Termos de Referência para visualizar estatísticas e relatórios detalhados."
+                    actionLabel="Criar TR"
+                    actionHref="/create-tr"
+                  />
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="departments" className="space-y-6">
@@ -257,30 +180,11 @@ const Reports = () => {
                   <CardDescription>Comparativo de produtividade</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {departmentData.map((dept) => (
-                      <div key={dept.name} className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium">{dept.name}</h4>
-                          <Badge>{dept.active + dept.completed + dept.pending} total</Badge>
-                        </div>
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-yellow-600">{dept.active}</div>
-                            <div className="text-muted-foreground">Ativos</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-green-600">{dept.completed}</div>
-                            <div className="text-muted-foreground">Finalizados</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-red-600">{dept.pending}</div>
-                            <div className="text-muted-foreground">Pendentes</div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <EmptyState
+                    icon={Users}
+                    title="Sem dados departamentais"
+                    description="Os relatórios por departamento serão exibidos quando houver TRs cadastrados no sistema."
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -289,26 +193,14 @@ const Reports = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Timeline de Criação vs Finalização</CardTitle>
-                  <CardDescription>Últimos 5 meses</CardDescription>
+                  <CardDescription>Histórico de atividades</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {timelineData.map((month) => (
-                      <div key={month.month} className="flex items-center gap-4">
-                        <div className="w-12 text-sm font-medium">{month.month}</div>
-                        <div className="flex-1 flex gap-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                            <span className="text-sm">Criados: {month.created}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                            <span className="text-sm">Finalizados: {month.completed}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <EmptyState
+                    icon={Calendar}
+                    title="Timeline vazia"
+                    description="O histórico de criação e finalização de TRs será exibido aqui conforme você utiliza o sistema."
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -320,28 +212,11 @@ const Reports = () => {
                   <CardDescription>Últimas ações no sistema</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentActivity.map((activity) => (
-                      <div key={activity.id} className="flex items-center gap-4 p-3 border rounded-lg">
-                        <div className={`p-2 rounded-lg ${
-                          activity.type === 'completed' ? 'bg-green-100 text-green-600' :
-                          activity.type === 'review' ? 'bg-yellow-100 text-yellow-600' :
-                          activity.type === 'created' ? 'bg-blue-100 text-blue-600' :
-                          'bg-purple-100 text-purple-600'
-                        }`}>
-                          {activity.type === 'completed' ? <CheckCircle className="h-4 w-4" /> :
-                           activity.type === 'review' ? <AlertTriangle className="h-4 w-4" /> :
-                           activity.type === 'created' ? <FileText className="h-4 w-4" /> :
-                           <Users className="h-4 w-4" />}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{activity.action}</p>
-                          <p className="text-xs text-muted-foreground">por {activity.user}</p>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{activity.time}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <EmptyState
+                    icon={Clock}
+                    title="Nenhuma atividade recente"
+                    description="As ações realizadas no sistema serão registradas e exibidas aqui para acompanhamento."
+                  />
                 </CardContent>
               </Card>
             </TabsContent>

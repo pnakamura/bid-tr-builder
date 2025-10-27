@@ -6,14 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-
-// Mock data for statistics
-const stats = {
-  active: 24,
-  draft: 7,
-  completed: 42,
-  users: 156
-};
+import { EmptyState } from "@/components/EmptyState";
 
 export const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,33 +60,33 @@ export const Dashboard = () => {
           {[
             {
               title: "TRs Ativos",
-              value: stats.active,
-              description: "+12% em relação ao mês anterior",
+              value: 0,
+              description: "Nenhum TR ativo no momento",
               icon: FileText,
               color: "text-primary",
               bgColor: "bg-primary/10"
             },
             {
               title: "Em Elaboração",
-              value: stats.draft,
-              description: "Aguardando revisão",
+              value: 0,
+              description: "Nenhum TR em elaboração",
               icon: Clock,
               color: "text-yellow-600",
               bgColor: "bg-yellow-100"
             },
             {
               title: "Finalizados",
-              value: stats.completed,
-              description: "+5 neste mês",
+              value: 0,
+              description: "Nenhum TR finalizado",
               icon: CheckCircle,
               color: "text-success",
               bgColor: "bg-success/10"
             },
             {
-              title: "Total de Usuários",
-              value: stats.users,
-              description: "Cadastrados no sistema",
-              icon: Users,
+              title: "Templates",
+              value: 1,
+              description: "Template disponível",
+              icon: FileText,
               color: "text-accent-foreground",
               bgColor: "bg-accent/20"
             }
@@ -167,44 +160,16 @@ export const Dashboard = () => {
                   </CardTitle>
                   <CardDescription>Últimos documentos atualizados</CardDescription>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm">
-                    <Search className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Filter className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {[
-                  { title: "Consultoria Sistema Gestão", type: "Consultoria", status: "Em Análise", date: "15/01" },
-                  { title: "Obras Pavimentação", type: "Obras", status: "Aprovado", date: "14/01" },
-                  { title: "Equipamentos Lab", type: "Equipamentos", status: "Rascunho", date: "12/01" },
-                  { title: "Consultoria TI", type: "Consultoria", status: "Em Análise", date: "10/01" }
-                ].map((tr, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-all duration-200 hover-scale">
-                    <div>
-                      <p className="font-medium">{tr.title}</p>
-                      <p className="text-sm text-muted-foreground">{tr.type}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant={tr.status === "Aprovado" ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {tr.status}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">{tr.date}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <Button variant="outline" className="w-full mt-4 hover-scale">
-                Ver todos os TRs
-              </Button>
+              <EmptyState
+                icon={FileText}
+                title="Nenhum TR cadastrado"
+                description="Comece criando seu primeiro Termo de Referência usando um dos templates disponíveis."
+                actionLabel="Criar Primeiro TR"
+                actionHref="/create-tr"
+              />
             </CardContent>
           </Card>
         </div>

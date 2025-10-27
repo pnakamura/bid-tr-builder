@@ -428,7 +428,7 @@ export type Database = {
     }
     Functions: {
       analyze_common_causes: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           categorias: string[]
           causa_descricao: string
@@ -445,7 +445,7 @@ export type Database = {
         }[]
       }
       analyze_common_causes_enhanced: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           categorias: string[]
           causa_descricao: string
@@ -473,10 +473,7 @@ export type Database = {
         Args: { template_id: string }
         Returns: undefined
       }
-      is_admin_or_gestor: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
+      is_admin_or_gestor: { Args: { _user_id: string }; Returns: boolean }
       user_can_access_risk: {
         Args: { _risco_id: string; _user_id: string }
         Returns: boolean
