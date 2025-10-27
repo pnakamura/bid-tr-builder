@@ -30,6 +30,8 @@ interface SendToN8NResponse {
   google_docs_url?: string;
   n8n_response?: any;
   error?: string;
+  warning?: string;
+  n8n_available?: boolean;
 }
 
 export const useSendToN8N = () => {
@@ -49,14 +51,20 @@ export const useSendToN8N = () => {
     },
     onSuccess: (data) => {
       if (data.success) {
-        const message = data.google_docs_url 
-          ? `${data.message}\n\n📄 Documento disponível no Google Docs\nID: ${data.request_id.slice(0, 8)}...`
-          : data.message;
+        let message = data.message;
+        
+        // Check if N8N is available and document was generated
+        if (data.google_docs_url) {
+          message = `${message}\n\n📄 Documento disponível no Google Docs\nID: ${data.request_id.slice(0, 8)}...`;
+        } else if (data.warning) {
+          message = `${message}\n\n⚠️ ${data.warning}`;
+        }
           
         toast({
-          title: "✅ TR Criado com Sucesso!",
+          title: data.google_docs_url ? "✅ TR Criado com Sucesso!" : "⚠️ TR Salvo",
           description: message,
-          duration: 8000,
+          duration: 10000,
+          variant: data.warning ? "default" : "default",
         });
       } else {
         throw new Error(data.error || 'Erro desconhecido');
