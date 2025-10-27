@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { Plus, FileText, Calendar, Users, BarChart3, Search, Filter, Clock, CheckCircle, Zap, Target } from "lucide-react";
+import { Plus, FileText, Upload, Eye, BarChart3, Clock, CheckCircle, Zap, Target, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { useTRStats } from "@/hooks/useTRStats";
+import { useMeusTRs } from "@/hooks/useMeusTRs";
+import { TemplateUploadDialog } from "@/components/TemplateUploadDialog";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export const Dashboard = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const { stats, isLoading } = useTRStats();
+  const { trs, isLoading: isLoadingTRs } = useMeusTRs();
 
   return (
     <div className="animate-fade-in">
@@ -122,32 +125,59 @@ export const Dashboard = () => {
               <CardDescription>Acesso direto às funcionalidades principais</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {[
-                { label: "Criar TR - Consultoria", icon: Plus, href: "/create-tr" },
-                { label: "Criar TR - Obras", icon: Plus, href: "/create-tr" },
-                { label: "Criar TR - Equipamentos", icon: Plus, href: "/create-tr" },
-                { label: "Importar Template", icon: FileText },
-                { label: "Agenda de Revisões", icon: Calendar }
-              ].map((action, index) => (
+              <Button
+                variant="outline"
+                className="w-full justify-start hover:bg-primary/5 transition-all duration-200 hover-scale"
+                asChild
+              >
+                <Link to="/create-tr">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Novo Termo de Referência
+                </Link>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full justify-start hover:bg-primary/5 transition-all duration-200 hover-scale"
+                asChild
+              >
+                <Link to="/templates">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Ver Templates
+                </Link>
+              </Button>
+              
+              <TemplateUploadDialog>
                 <Button
-                  key={action.label}
-                  asChild={!!action.href}
                   variant="outline"
                   className="w-full justify-start hover:bg-primary/5 transition-all duration-200 hover-scale"
                 >
-                  {action.href ? (
-                    <Link to={action.href}>
-                      <action.icon className="mr-2 h-4 w-4" />
-                      {action.label}
-                    </Link>
-                  ) : (
-                    <>
-                      <action.icon className="mr-2 h-4 w-4" />
-                      {action.label}
-                    </>
-                  )}
+                  <Upload className="mr-2 h-4 w-4" />
+                  Importar Template
                 </Button>
-              ))}
+              </TemplateUploadDialog>
+              
+              <Button
+                variant="outline"
+                className="w-full justify-start hover:bg-primary/5 transition-all duration-200 hover-scale"
+                asChild
+              >
+                <Link to="/meus-trs">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Ver Meus TRs
+                </Link>
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full justify-start hover:bg-primary/5 transition-all duration-200 hover-scale"
+                asChild
+              >
+                <Link to="/reports">
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Ver Relatórios
+                </Link>
+              </Button>
             </CardContent>
           </Card>
 
@@ -165,13 +195,68 @@ export const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <EmptyState
-                icon={FileText}
-                title="Nenhum TR cadastrado"
-                description="Comece criando seu primeiro Termo de Referência usando um dos templates disponíveis."
-                actionLabel="Criar Primeiro TR"
-                actionHref="/create-tr"
-              />
+              {isLoadingTRs ? (
+                <div className="space-y-3">
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </div>
+              ) : trs && trs.length > 0 ? (
+                <div className="space-y-3">
+                  {trs.slice(0, 5).map((tr) => (
+                    <Link
+                      key={tr.id}
+                      to="/meus-trs"
+                      className="block p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 hover-scale"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-sm mb-1 truncate">{tr.title}</h4>
+                          <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{tr.description}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>
+                              {formatDistanceToNow(new Date(tr.created_at), {
+                                addSuffix: true,
+                                locale: ptBR
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <Badge
+                            variant={
+                              tr.status === 'concluido' ? 'default' :
+                              tr.status === 'processando' ? 'secondary' :
+                              'destructive'
+                            }
+                            className="text-xs"
+                          >
+                            {tr.status === 'concluido' ? 'Concluído' :
+                             tr.status === 'processando' ? 'Processando' :
+                             'Erro'}
+                          </Badge>
+                          {tr.google_docs_url && (
+                            <Button size="sm" variant="ghost" className="h-6 px-2" asChild>
+                              <a href={tr.google_docs_url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={FileText}
+                  title="Nenhum TR cadastrado"
+                  description="Comece criando seu primeiro Termo de Referência usando um dos templates disponíveis."
+                  actionLabel="Criar Primeiro TR"
+                  actionHref="/create-tr"
+                />
+              )}
             </CardContent>
           </Card>
         </div>
