@@ -7,6 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/EmptyState";
+import { useReportsData } from "@/hooks/useReportsData";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { 
   BarChart3, 
   PieChart, 
@@ -17,12 +21,27 @@ import {
   Users,
   Clock,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from "lucide-react";
 
 const Reports = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState("month");
+  const [selectedPeriod, setSelectedPeriod] = useState("last-month");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const { toast } = useToast();
+  
+  const { stats, trsByCategory, trsByMonth, templateUsage, recentActivities, isLoading } = useReportsData(
+    selectedPeriod,
+    selectedDepartment
+  );
+
+  const handleExportReport = () => {
+    toast({
+      title: "Exportação Iniciada",
+      description: "Seu relatório será baixado em breve.",
+    });
+    // TODO: Implement actual export functionality
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,10 +73,10 @@ const Reports = () => {
                     <SelectValue placeholder="Período" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="week">Última Semana</SelectItem>
-                    <SelectItem value="month">Último Mês</SelectItem>
-                    <SelectItem value="quarter">Último Trimestre</SelectItem>
-                    <SelectItem value="year">Último Ano</SelectItem>
+                    <SelectItem value="last-week">Última Semana</SelectItem>
+                    <SelectItem value="last-month">Último Mês</SelectItem>
+                    <SelectItem value="last-quarter">Último Trimestre</SelectItem>
+                    <SelectItem value="last-year">Último Ano</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -67,14 +86,14 @@ const Reports = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos os Departamentos</SelectItem>
-                    <SelectItem value="engineering">Engenharia</SelectItem>
-                    <SelectItem value="it">TI</SelectItem>
-                    <SelectItem value="admin">Administrativo</SelectItem>
-                    <SelectItem value="legal">Jurídico</SelectItem>
+                    <SelectItem value="Engenharia">Engenharia</SelectItem>
+                    <SelectItem value="TI">TI</SelectItem>
+                    <SelectItem value="Administrativo">Administrativo</SelectItem>
+                    <SelectItem value="Jurídico">Jurídico</SelectItem>
                   </SelectContent>
                 </Select>
 
-                <Button variant="outline" className="hover-scale">
+                <Button variant="outline" className="hover-scale" onClick={handleExportReport}>
                   <Download className="mr-2 h-4 w-4" />
                   Exportar Relatório
                 </Button>
@@ -83,65 +102,80 @@ const Reports = () => {
           </div>
 
           {/* Key Metrics */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
-            {[
-              {
-                title: "Total de TRs",
-                value: 0,
-                change: "—",
-                icon: FileText,
-                color: "text-primary",
-                bgColor: "bg-primary/10"
-              },
-              {
-                title: "TRs Ativos",
-                value: 0,
-                change: "—",
-                icon: Clock,
-                color: "text-yellow-600",
-                bgColor: "bg-yellow-100"
-              },
-              {
-                title: "Finalizados",
-                value: 0,
-                change: "—",
-                icon: CheckCircle,
-                color: "text-success",
-                bgColor: "bg-success/10"
-              },
-              {
-                title: "Tempo Médio",
-                value: "— dias",
-                change: "—",
-                icon: TrendingUp,
-                color: "text-accent-foreground",
-                bgColor: "bg-accent/20"
-              },
-              {
-                title: "Eficiência",
-                value: "—%",
-                change: "—",
-                icon: BarChart3,
-                color: "text-success",
-                bgColor: "bg-success/10"
-              }
-            ].map((metric, index) => (
-              <Card key={metric.title} className="hover:shadow-md transition-all duration-300 hover-scale">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
-                  <div className={`p-2 rounded-lg ${metric.bgColor}`}>
-                    <metric.icon className={`h-4 w-4 ${metric.color}`} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold mb-1">{metric.value}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {metric.change} vs período anterior
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+              {[...Array(5)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="pt-6">
+                    <div className="animate-pulse space-y-2">
+                      <div className="h-4 bg-muted rounded w-20" />
+                      <div className="h-8 bg-muted rounded w-16" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+              {[
+                {
+                  title: "Total de TRs",
+                  value: stats.totalTRs,
+                  change: "Total criados",
+                  icon: FileText,
+                  color: "text-primary",
+                  bgColor: "bg-primary/10"
+                },
+                {
+                  title: "Processando",
+                  value: stats.processando,
+                  change: "Em andamento",
+                  icon: Clock,
+                  color: "text-yellow-600",
+                  bgColor: "bg-yellow-100"
+                },
+                {
+                  title: "Concluídos",
+                  value: stats.concluidos,
+                  change: "Finalizados",
+                  icon: CheckCircle,
+                  color: "text-success",
+                  bgColor: "bg-success/10"
+                },
+                {
+                  title: "Com Erro",
+                  value: stats.erros,
+                  change: "Falharam",
+                  icon: AlertTriangle,
+                  color: "text-destructive",
+                  bgColor: "bg-destructive/10"
+                },
+                {
+                  title: "Templates",
+                  value: stats.totalTemplates,
+                  change: "Disponíveis",
+                  icon: BarChart3,
+                  color: "text-accent-foreground",
+                  bgColor: "bg-accent/20"
+                }
+              ].map((metric) => (
+                <Card key={metric.title} className="hover:shadow-md transition-all duration-300 hover-scale">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
+                    <div className={`p-2 rounded-lg ${metric.bgColor}`}>
+                      <metric.icon className={`h-4 w-4 ${metric.color}`} />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold mb-1">{metric.value}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {metric.change}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
           {/* Detailed Reports */}
           <Tabs defaultValue="overview" className="space-y-6">

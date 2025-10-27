@@ -1,8 +1,9 @@
-import { FileText, Building2, User, Settings, Bell, Search, Menu, LogOut } from "lucide-react";
+import { FileText, Building2, User, Settings, Menu, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
+import { GlobalSearch } from "@/components/GlobalSearch";
+import { NotificationsDropdown } from "@/components/NotificationsDropdown";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -29,37 +30,42 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1 flex-1 max-w-md mx-8">
-            <Button
-              variant={location.pathname === "/" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link to="/">Início</Link>
-            </Button>
-            <Button
-              variant={location.pathname === "/meus-trs" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link to="/meus-trs">Meus TRs</Link>
-            </Button>
-            <Button
-              variant={location.pathname === "/templates" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link to="/templates">Templates</Link>
-            </Button>
-            <Button
-              variant={location.pathname === "/reports" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
-              <Link to="/reports">Relatórios</Link>
-            </Button>
-          </nav>
+          {/* Search Bar with Navigation */}
+          <div className="hidden md:flex items-center gap-2 flex-1 max-w-2xl mx-8">
+            <nav className="flex items-center gap-1">
+              <Button
+                variant={location.pathname === "/" ? "secondary" : "ghost"}
+                size="sm"
+                asChild
+              >
+                <Link to="/">Início</Link>
+              </Button>
+              <Button
+                variant={location.pathname === "/meus-trs" ? "secondary" : "ghost"}
+                size="sm"
+                asChild
+              >
+                <Link to="/meus-trs">Meus TRs</Link>
+              </Button>
+              <Button
+                variant={location.pathname === "/templates" ? "secondary" : "ghost"}
+                size="sm"
+                asChild
+              >
+                <Link to="/templates">Templates</Link>
+              </Button>
+              <Button
+                variant={location.pathname === "/reports" ? "secondary" : "ghost"}
+                size="sm"
+                asChild
+              >
+                <Link to="/reports">Relatórios</Link>
+              </Button>
+            </nav>
+            <div className="flex-1 max-w-md ml-4">
+              <GlobalSearch />
+            </div>
+          </div>
 
           {/* Auto-save indicator for create page */}
           {isCreatePage && (
@@ -78,11 +84,11 @@ export const Header = () => {
 
             {/* Action buttons - Desktop */}
             <div className="hidden md:flex items-center space-x-2">
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4" />
+              <NotificationsDropdown />
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/profile">
+                  <Settings className="h-4 w-4" />
+                </Link>
               </Button>
               
               {/* User Menu */}
@@ -101,13 +107,17 @@ export const Header = () => {
                     {user?.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <User className="h-4 w-4 mr-2" />
-                    Perfil
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center">
+                      <User className="h-4 w-4 mr-2" />
+                      Perfil
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configurações
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configurações
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut} className="text-destructive">
@@ -150,17 +160,17 @@ export const Header = () => {
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                   
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Bell className="h-4 w-4 mr-2" />
-                    Notificações
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/profile">
+                      <User className="h-4 w-4 mr-2" />
+                      Perfil
+                    </Link>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configurações
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <User className="h-4 w-4 mr-2" />
-                    Perfil
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/profile">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configurações
+                    </Link>
                   </Button>
                   
                   <Button 
