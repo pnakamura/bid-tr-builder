@@ -189,15 +189,26 @@ export function useDownloadTemplate() {
 
       if (error) throw error;
 
-      // Trigger download
+      // Construct full URL (signedUrl is relative)
+      const supabaseUrl = 'https://dvqnlnxkwcrxbctujajl.supabase.co';
+      const fullUrl = `${supabaseUrl}/storage/v1${data.signedUrl}`;
+
+      // Trigger download using fetch to avoid Chrome blocking
+      const response = await fetch(fullUrl);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
       const link = document.createElement('a');
-      link.href = data.signedUrl;
+      link.href = blobUrl;
       link.download = template.title;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+      // Clean up blob URL
+      window.URL.revokeObjectURL(blobUrl);
 
-      return data.signedUrl;
+      return fullUrl;
     },
     onSuccess: (_, template) => {
       toast({
