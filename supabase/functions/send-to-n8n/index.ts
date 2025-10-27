@@ -151,7 +151,7 @@ serve(async (req) => {
     console.log('Sending payload to N8N:', JSON.stringify(n8nPayload, null, 2));
 
     // 3. Send to N8N webhook with timeout
-    const n8nWebhookUrl = 'https://n8n.fgvsaude.org/webhook/08e43d5e-1fef-4cc5-ba49-ec55ab02b49c';
+    const n8nWebhookUrl = 'https://postgres-n8n.wuzmwk.easypanel.host/webhook/00c47da5-c066-48c5-8002-0719d0a0a6da';
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
