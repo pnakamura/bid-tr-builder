@@ -4,6 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Helper function to format file size
+export function formatFileSize(bytes?: number): string {
+  if (!bytes) return 'N/A';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
 export interface Template {
   id: string;
   title: string;
@@ -190,6 +198,12 @@ export function useDownloadTemplate() {
       document.body.removeChild(link);
 
       return data.signedUrl;
+    },
+    onSuccess: (_, template) => {
+      toast({
+        title: "Download iniciado",
+        description: `O template "${template.title}" está sendo baixado.`
+      });
     },
     onError: (error) => {
       toast({

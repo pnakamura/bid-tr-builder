@@ -6,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Eye, Download, Star, Calendar, FileText, Plus, Trash2, Edit } from "lucide-react";
+import { Eye, Download, Star, Calendar, FileText, Plus, Trash2, Edit, File } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { TemplateUploadDialog } from "@/components/TemplateUploadDialog";
-import { useTemplates, useDownloadTemplate, useDeleteTemplate, type Template } from "@/hooks/useTemplates";
+import { useTemplates, useDownloadTemplate, useDeleteTemplate, type Template, formatFileSize } from "@/hooks/useTemplates";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -229,6 +230,24 @@ const Templates = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
+                    {/* File Information Section */}
+                    {template.file_path && (
+                      <div className="mb-4 p-3 bg-muted/50 rounded-md">
+                        <div className="flex items-center gap-2 mb-2">
+                          <File className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium text-foreground">Arquivo Disponível</span>
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge variant="secondary" className="text-xs">
+                            {template.file_type?.split('/')[1]?.toUpperCase() || 'DOCX'}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {formatFileSize(template.file_size)}
+                          </Badge>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
@@ -255,16 +274,47 @@ const Templates = () => {
                           Usar Template
                         </Button>
                       </Link>
-                      {template.file_path && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleDownload(template)}
-                          disabled={downloadTemplate.isPending}
-                          data-help-id={`download-template-${index}`}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
+                      {template.file_path ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleDownload(template)}
+                                disabled={downloadTemplate.isPending}
+                                data-help-id={`download-template-${index}`}
+                                className="relative"
+                              >
+                                {downloadTemplate.isPending ? (
+                                  <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                  <Download className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Baixar arquivo do template</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                disabled
+                              >
+                                <Download className="h-4 w-4 opacity-50" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Arquivo não disponível</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       )}
                     </div>
                   </CardContent>
