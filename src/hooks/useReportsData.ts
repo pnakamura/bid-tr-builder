@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfMonth, endOfMonth, subMonths, format, differenceInHours } from "date-fns";
+import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
 
 export const useReportsData = (dateRange: string, department: string) => {
   // Calculate date range
@@ -79,40 +79,13 @@ export const useReportsData = (dateRange: string, department: string) => {
     }
   });
 
-  // Calculate average time to complete
-  const calculateAvgProcessingTime = () => {
-    if (!trsData) return 0;
-    
-    const completedTRs = trsData.filter(
-      tr => tr.status === 'concluido' && tr.n8n_processed_at
-    );
-    
-    if (completedTRs.length === 0) return 0;
-    
-    const totalHours = completedTRs.reduce((sum, tr) => {
-      const hours = differenceInHours(
-        new Date(tr.n8n_processed_at!),
-        new Date(tr.created_at)
-      );
-      return sum + hours;
-    }, 0);
-    
-    return totalHours / completedTRs.length;
-  };
-
   // Calculate statistics
   const stats = {
     totalTRs: trsData?.length || 0,
     processando: trsData?.filter(tr => tr.status === 'processando').length || 0,
     concluidos: trsData?.filter(tr => tr.status === 'concluido').length || 0,
     erros: trsData?.filter(tr => tr.status === 'erro').length || 0,
-    avgTimeToComplete: calculateAvgProcessingTime(),
-    successRate: trsData && trsData.length > 0 
-      ? ((trsData.filter(tr => tr.status === 'concluido').length / trsData.length) * 100)
-      : 0,
-    errorRate: trsData && trsData.length > 0
-      ? ((trsData.filter(tr => tr.status === 'erro').length / trsData.length) * 100)
-      : 0,
+    avgTimeToComplete: 0,
     totalTemplates: templatesData?.length || 0,
   };
 
@@ -140,7 +113,7 @@ export const useReportsData = (dateRange: string, department: string) => {
   // Recent activities
   const recentActivities = trsData
     ?.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 50)
+    .slice(0, 10)
     .map(tr => ({
       id: tr.id,
       action: 'TR Criado',
