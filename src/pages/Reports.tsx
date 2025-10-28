@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/EmptyState";
 import { useReportsData } from "@/hooks/useReportsData";
+import { useAllProgramas } from "@/hooks/useAllProgramas";
 import { useToast } from "@/hooks/use-toast";
 import { 
   BarChart3, 
@@ -23,12 +24,13 @@ import {
 
 const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("last-month");
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
+  const [selectedProgram, setSelectedProgram] = useState("all");
   const { toast } = useToast();
+  const { data: programas } = useAllProgramas();
   
-  const { stats, trsByCategory, trsByMonth, templateUsage, recentActivities, departmentStats, isLoading } = useReportsData(
+  const { stats, trsByCategory, trsByMonth, templateUsage, recentActivities, programStats, isLoading } = useReportsData(
     selectedPeriod,
-    selectedDepartment
+    selectedProgram
   );
 
   const handleExportReport = () => {
@@ -75,15 +77,15 @@ const Reports = () => {
                   </SelectContent>
                 </Select>
 
-                <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                <Select value={selectedProgram} onValueChange={setSelectedProgram}>
                   <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Departamento" />
+                    <SelectValue placeholder="Programa" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos os Departamentos</SelectItem>
-                    {departmentStats && departmentStats.map((dept: any) => (
-                      <SelectItem key={dept.name} value={dept.name}>
-                        {dept.name}
+                    <SelectItem value="all">Todos os Programas</SelectItem>
+                    {programas && programas.map((programa: any) => (
+                      <SelectItem key={programa.id} value={programa.id}>
+                        {programa.nome}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -177,7 +179,7 @@ const Reports = () => {
           <Tabs defaultValue="overview" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-              <TabsTrigger value="departments">Departamentos</TabsTrigger>
+              <TabsTrigger value="programs">Programas</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="activity">Atividade</TabsTrigger>
             </TabsList>
@@ -330,35 +332,35 @@ const Reports = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="departments" className="space-y-6">
+            <TabsContent value="programs" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Desempenho por Departamento</CardTitle>
+                  <CardTitle>Desempenho por Programa</CardTitle>
                   <CardDescription>Comparativo de produtividade</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {departmentStats && departmentStats.length > 0 ? (
+                  {programStats && programStats.length > 0 ? (
                     <div className="space-y-4">
-                      {departmentStats.map((dept: any) => (
-                        <div key={dept.name} className="p-4 border rounded-lg">
+                      {programStats.map((prog: any) => (
+                        <div key={prog.name} className="p-4 border rounded-lg">
                           <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-medium">{dept.name}</h4>
+                            <h4 className="font-medium">{prog.name}</h4>
                             <span className="text-sm text-muted-foreground">
-                              Taxa de sucesso: {dept.successRate.toFixed(1)}%
+                              Taxa de sucesso: {prog.successRate.toFixed(1)}%
                             </span>
                           </div>
                           <div className="grid grid-cols-3 gap-4 text-sm">
                             <div>
                               <span className="text-muted-foreground">Total:</span>
-                              <span className="ml-2 font-medium">{dept.total}</span>
+                              <span className="ml-2 font-medium">{prog.total}</span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Concluídos:</span>
-                              <span className="ml-2 font-medium text-success">{dept.concluidos}</span>
+                              <span className="ml-2 font-medium text-success">{prog.concluidos}</span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">Erros:</span>
-                              <span className="ml-2 font-medium text-destructive">{dept.erros}</span>
+                              <span className="ml-2 font-medium text-destructive">{prog.erros}</span>
                             </div>
                           </div>
                         </div>
@@ -367,8 +369,8 @@ const Reports = () => {
                   ) : (
                     <EmptyState
                       icon={Users}
-                      title="Sem dados departamentais"
-                      description="Os relatórios por departamento serão exibidos quando houver TRs cadastrados no sistema."
+                      title="Sem dados de programas"
+                      description="Os relatórios por programa serão exibidos quando houver TRs cadastrados no sistema."
                     />
                   )}
                 </CardContent>

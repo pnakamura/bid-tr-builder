@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns";
 
-export const useReportsData = (dateRange: string, department: string) => {
+export const useReportsData = (dateRange: string, programa: string) => {
   // Calculate date range
   const getDateRange = () => {
     const now = new Date();
@@ -24,44 +24,32 @@ export const useReportsData = (dateRange: string, department: string) => {
 
   // Fetch TRs data with filters
   const { data: trsData, isLoading: trsLoading } = useQuery({
-    queryKey: ['reports-trs', dateRange, department],
+    queryKey: ['reports-trs', dateRange, programa],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('termos_referencia')
         .select(`
           *,
           templates (
             title,
             category
+          ),
+          programas (
+            nome,
+            codigo
           )
         `)
         .gte('created_at', start.toISOString())
         .lte('created_at', end.toISOString());
       
-      if (error) throw error;
-      
-      // Fetch profiles separately
-      if (data && data.length > 0) {
-        const userIds = [...new Set(data.map(tr => tr.created_by))];
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('id, nome, departamento')
-          .in('id', userIds);
-        
-        // Map profiles to TRs
-        const trsWithProfiles = data.map(tr => ({
-          ...tr,
-          profile: profiles?.find(p => p.id === tr.created_by),
-        }));
-        
-        // Filter by department if specified
-        if (department && department !== "all") {
-          return trsWithProfiles.filter(tr => tr.profile?.departamento === department);
-        }
-        
-        return trsWithProfiles;
+      // Filter by programa if specified
+      if (programa && programa !== "all") {
+        query = query.eq('programa_id', programa);
       }
       
+      const { data, error } = await query;
+      
+      if (error) throw error;
       return data || [];
     }
   });
@@ -123,13 +111,13 @@ export const useReportsData = (dateRange: string, department: string) => {
       status: tr.status,
     })) || [];
 
-  // Department statistics
-  const departmentStats = trsData?.reduce((acc, tr) => {
-    const deptName = (tr as any).profile?.departamento || 'Sem Departamento';
+  // Program statistics
+  const programStats = trsData?.reduce((acc, tr) => {
+    const programName = (tr as any).programas?.nome || 'Sem Programa';
     
-    if (!acc[deptName]) {
-      acc[deptName] = {
-        name: deptName,
+    if (!acc[programName]) {
+      acc[programName] = {
+        name: programName,
         total: 0,
         concluidos: 0,
         erros: 0,
@@ -137,17 +125,17 @@ export const useReportsData = (dateRange: string, department: string) => {
       };
     }
     
-    acc[deptName].total++;
-    if (tr.status === 'concluido') acc[deptName].concluidos++;
-    if (tr.status === 'erro') acc[deptName].erros++;
+    acc[programName].total++;
+    if (tr.status === 'concluido') acc[programName].concluidos++;
+    if (tr.status === 'erro') acc[programName].erros++;
     
     return acc;
   }, {} as Record<string, any>) || {};
 
-  // Calculate success rates for departments
-  const departmentStatsArray = Object.values(departmentStats).map((dept: any) => ({
-    ...dept,
-    successRate: dept.total > 0 ? (dept.concluidos / dept.total) * 100 : 0
+  // Calculate success rates for programs
+  const programStatsArray = Object.values(programStats).map((prog: any) => ({
+    ...prog,
+    successRate: prog.total > 0 ? (prog.concluidos / prog.total) * 100 : 0
   }));
 
   return {
@@ -156,7 +144,7 @@ export const useReportsData = (dateRange: string, department: string) => {
     trsByMonth,
     templateUsage,
     recentActivities,
-    departmentStats: departmentStatsArray,
+    programStats: programStatsArray,
     isLoading: trsLoading || templatesLoading,
   };
 };

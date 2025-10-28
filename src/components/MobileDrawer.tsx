@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Menu, X, Home, FileText, Settings, User } from "lucide-react";
+import { Menu, X, Home, FileText, Settings, User, FolderKanban, BarChart3 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
-  { name: "Criar TR", href: "/create", icon: FileText },
-  { name: "Configurações", href: "/settings", icon: Settings },
+  { name: "Início", href: "/", icon: Home },
+  { name: "Meus TRs", href: "/meus-trs", icon: FileText },
+  { name: "Templates", href: "/templates", icon: Settings },
+  { name: "Programas", href: "/programas", icon: FolderKanban },
+  { name: "Relatórios", href: "/reports", icon: BarChart3 },
   { name: "Perfil", href: "/profile", icon: User },
 ];
 

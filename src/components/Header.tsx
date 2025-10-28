@@ -55,6 +55,13 @@ export const Header = () => {
                 <Link to="/templates">Templates</Link>
               </Button>
               <Button
+                variant={location.pathname === "/programas" ? "secondary" : "ghost"}
+                size="sm"
+                asChild
+              >
+                <Link to="/programas">Programas</Link>
+              </Button>
+              <Button
                 variant={location.pathname === "/reports" ? "secondary" : "ghost"}
                 size="sm"
                 asChild

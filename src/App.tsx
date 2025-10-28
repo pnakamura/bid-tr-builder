@@ -12,6 +12,7 @@ import Templates from "./pages/Templates";
 import Reports from "./pages/Reports";
 import MeusTRs from "./pages/MeusTRs";
 import Profile from "./pages/Profile";
+import Programas from "./pages/Programas";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/create-tr" element={<ProtectedRoute><CreateTR /></ProtectedRoute>} />
               <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
+              <Route path="/programas" element={<ProtectedRoute><Programas /></ProtectedRoute>} />
               <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
               <Route path="/meus-trs" element={<ProtectedRoute><MeusTRs /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

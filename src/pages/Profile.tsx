@@ -38,7 +38,6 @@ const Profile = () => {
     nome: profile?.nome || '',
     email: profile?.email || '',
     cargo: profile?.cargo || '',
-    departamento: profile?.departamento || '',
     telefone: profile?.telefone || '',
   });
 
@@ -49,7 +48,6 @@ const Profile = () => {
         nome: profile.nome || '',
         email: profile.email || '',
         cargo: profile.cargo || '',
-        departamento: profile.departamento || '',
         telefone: profile.telefone || '',
       });
     }
@@ -65,7 +63,6 @@ const Profile = () => {
         .update({
           nome: data.nome,
           cargo: data.cargo,
-          departamento: data.departamento,
           telefone: data.telefone,
         })
         .eq('id', user.id);
@@ -172,19 +169,6 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="departamento" className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4" />
-                      Departamento
-                    </Label>
-                    <Input
-                      id="departamento"
-                      value={formData.departamento}
-                      onChange={(e) => setFormData(prev => ({ ...prev, departamento: e.target.value }))}
-                      placeholder="Seu departamento"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="telefone" className="flex items-center gap-2">
                       <Phone className="h-4 w-4" />
                       Telefone
@@ -210,7 +194,6 @@ const Profile = () => {
                           nome: profile.nome || '',
                           email: profile.email || '',
                           cargo: profile.cargo || '',
-                          departamento: profile.departamento || '',
                           telefone: profile.telefone || '',
                         });
                       }
