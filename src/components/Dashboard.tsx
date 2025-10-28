@@ -204,13 +204,12 @@ export const Dashboard = () => {
               ) : trs && trs.length > 0 ? (
                 <div className="space-y-3">
                   {trs.slice(0, 5).map((tr) => (
-                    <Link
+                    <div
                       key={tr.id}
-                      to="/meus-trs"
-                      className="block p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200 hover-scale"
+                      className="p-4 border rounded-lg hover:bg-muted/50 transition-all duration-200"
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
+                        <Link to="/meus-trs" className="flex-1 min-w-0 hover:opacity-80">
                           <h4 className="font-medium text-sm mb-1 truncate">{tr.title}</h4>
                           <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{tr.description}</p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -222,7 +221,7 @@ export const Dashboard = () => {
                               })}
                             </span>
                           </div>
-                        </div>
+                        </Link>
                         <div className="flex flex-col items-end gap-2">
                           <Badge
                             variant={
@@ -245,7 +244,7 @@ export const Dashboard = () => {
                           )}
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               ) : (

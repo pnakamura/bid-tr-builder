@@ -183,51 +183,141 @@ const Reports = () => {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <PieChart className="h-5 w-5" />
-                    Visão Geral
-                  </CardTitle>
-                  <CardDescription>Análise consolidada do sistema</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {stats.totalTRs > 0 ? (
-                    <div className="space-y-4">
-                      <p className="text-muted-foreground">
+              {stats.totalTRs > 0 ? (
+                <>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <PieChart className="h-5 w-5" />
+                        Visão Geral
+                      </CardTitle>
+                      <CardDescription>
                         Dados consolidados dos últimos {selectedPeriod === 'last-week' ? '7 dias' : 
                         selectedPeriod === 'last-month' ? '30 dias' : 
-                        selectedPeriod === 'last-quarter' ? '90 dias' : '365 dias'}.
-                      </p>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        <div className="p-4 border rounded-lg">
-                          <h4 className="font-medium mb-2">TRs por Categoria</h4>
-                          <div className="space-y-2">
-                            {Object.entries(trsByCategory || {}).map(([cat, count]) => (
-                              <div key={cat} className="flex justify-between text-sm">
-                                <span>{cat}</span>
-                                <span className="font-medium">{count as number}</span>
+                        selectedPeriod === 'last-quarter' ? '90 dias' : '365 dias'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <div className="space-y-4">
+                          <div className="p-4 border rounded-lg bg-gradient-to-br from-primary/5 to-transparent">
+                            <h4 className="font-medium mb-4 flex items-center gap-2">
+                              <PieChart className="h-4 w-4 text-primary" />
+                              TRs por Categoria
+                            </h4>
+                            {Object.keys(trsByCategory || {}).length > 0 ? (
+                              <div className="space-y-3">
+                                {Object.entries(trsByCategory || {}).map(([cat, count]) => (
+                                  <div key={cat} className="flex items-center justify-between">
+                                    <span className="text-sm text-muted-foreground">{cat}</span>
+                                    <div className="flex items-center gap-2">
+                                      <div className="h-2 bg-primary/20 rounded-full w-24">
+                                        <div 
+                                          className="h-2 bg-primary rounded-full transition-all" 
+                                          style={{ width: `${(count as number / stats.totalTRs) * 100}%` }}
+                                        />
+                                      </div>
+                                      <span className="font-medium text-sm w-8 text-right">{count as number}</span>
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
-                            ))}
+                            ) : (
+                              <p className="text-sm text-muted-foreground">Nenhuma categoria registrada</p>
+                            )}
+                          </div>
+
+                          <div className="p-4 border rounded-lg bg-gradient-to-br from-success/5 to-transparent">
+                            <h4 className="font-medium mb-4 flex items-center gap-2">
+                              <TrendingUp className="h-4 w-4 text-success" />
+                              Performance
+                            </h4>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-muted-foreground">Taxa de Sucesso</span>
+                                <span className="font-medium text-success">
+                                  {((stats.concluidos / stats.totalTRs) * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-muted-foreground">Taxa de Erro</span>
+                                <span className="font-medium text-destructive">
+                                  {((stats.erros / stats.totalTRs) * 100).toFixed(1)}%
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-muted-foreground">Em Processamento</span>
+                                <span className="font-medium text-yellow-600">
+                                  {stats.processando}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="p-4 border rounded-lg">
-                          <h4 className="font-medium mb-2">Templates Mais Usados</h4>
-                          <div className="space-y-2">
-                            {Object.entries(templateUsage || {})
-                              .sort(([, a], [, b]) => (b as number) - (a as number))
-                              .slice(0, 5)
-                              .map(([temp, count]) => (
-                                <div key={temp} className="flex justify-between text-sm">
-                                  <span className="truncate">{temp}</span>
-                                  <span className="font-medium">{count as number}</span>
-                                </div>
-                              ))}
+
+                        <div className="space-y-4">
+                          <div className="p-4 border rounded-lg bg-gradient-to-br from-accent/5 to-transparent">
+                            <h4 className="font-medium mb-4 flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-accent-foreground" />
+                              Templates Mais Usados
+                            </h4>
+                            {Object.keys(templateUsage || {}).length > 0 ? (
+                              <div className="space-y-3">
+                                {Object.entries(templateUsage || {})
+                                  .sort(([, a], [, b]) => (b as number) - (a as number))
+                                  .slice(0, 5)
+                                  .map(([temp, count], index) => (
+                                    <div key={temp} className="flex items-center gap-3">
+                                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-medium">
+                                        {index + 1}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm truncate" title={temp}>{temp}</p>
+                                      </div>
+                                      <span className="font-medium text-sm">{count as number}x</span>
+                                    </div>
+                                  ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">Nenhum template usado ainda</p>
+                            )}
+                          </div>
+
+                          <div className="p-4 border rounded-lg bg-gradient-to-br from-blue-500/5 to-transparent">
+                            <h4 className="font-medium mb-4 flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-blue-600" />
+                              Distribuição Temporal
+                            </h4>
+                            {Object.keys(trsByMonth || {}).length > 0 ? (
+                              <div className="space-y-2">
+                                {Object.entries(trsByMonth || {})
+                                  .slice(-3)
+                                  .map(([month, count]) => (
+                                    <div key={month} className="flex justify-between items-center text-sm">
+                                      <span className="text-muted-foreground">{month}</span>
+                                      <span className="font-medium">{count as number} TRs</span>
+                                    </div>
+                                  ))}
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground">Nenhum dado temporal</p>
+                            )}
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
+                    </CardContent>
+                  </Card>
+                </>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <PieChart className="h-5 w-5" />
+                      Visão Geral
+                    </CardTitle>
+                    <CardDescription>Análise consolidada do sistema</CardDescription>
+                  </CardHeader>
+                  <CardContent>
                     <EmptyState
                       icon={BarChart3}
                       title="Nenhum dado disponível"
@@ -235,9 +325,9 @@ const Reports = () => {
                       actionLabel="Criar TR"
                       actionHref="/create-tr"
                     />
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             <TabsContent value="departments" className="space-y-6">
