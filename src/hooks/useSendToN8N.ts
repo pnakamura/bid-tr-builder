@@ -15,6 +15,7 @@ interface TRData {
   experience_weight: number;
   duration: string;
   budget: string;
+  programa_id?: string;
 }
 
 interface SendToN8NPayload {

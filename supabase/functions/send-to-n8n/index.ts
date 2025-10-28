@@ -16,6 +16,7 @@ interface N8NPayload {
     experience_weight: number;
     duration: string;
     budget: string;
+    programa_id?: string;
   };
   template_data: {
     id: string;
@@ -120,6 +121,7 @@ serve(async (req) => {
         experience_weight: tr_data.experience_weight,
         duration: tr_data.duration,
         budget: tr_data.budget,
+        programa_id: tr_data.programa_id || null,
       })
       .select()
       .single();

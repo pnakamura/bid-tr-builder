@@ -21,6 +21,7 @@ import { validateStep, getStepProgress } from "@/lib/validation";
 import { useTemplates } from "@/hooks/useTemplates";
 import { useSendToN8N } from "@/hooks/useSendToN8N";
 import { useGenerateTRWithAI } from "@/hooks/useGenerateTRWithAI";
+import { useProgramas } from "@/hooks/useProgramas";
 import { AIGenerationDialog } from "@/components/AIGenerationDialog";
 import { useHelp } from "@/contexts/HelpContext";
 import { createTRWithTemplatesHelpSteps } from "@/config/createTRWithTemplatesHelpSteps";
@@ -38,6 +39,7 @@ const CreateTR = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { templates, isLoading: templatesLoading } = useTemplates();
+  const { data: programas, isLoading: programasLoading } = useProgramas();
   const sendToN8N = useSendToN8N();
   const generateWithAI = useGenerateTRWithAI();
   const { startHelp } = useHelp();
@@ -45,6 +47,7 @@ const CreateTR = () => {
     title: "",
     type: "",
     template_id: "",
+    programa_id: "",
     description: "",
     objective: "",
     scope: "",
@@ -251,6 +254,7 @@ const CreateTR = () => {
           experience_weight: formData.experience_weight,
           duration: formData.duration,
           budget: formData.budget,
+          programa_id: formData.programa_id || undefined,
         },
         template_id: formData.template_id
       });
@@ -324,6 +328,43 @@ const CreateTR = () => {
                 </Select>
               </FormField>
             </div>
+
+            <FormField
+              label="Programa Associado"
+              helpText="Selecione o programa ao qual este TR estará vinculado."
+              error={fieldErrors.programa_id}
+              success={!!formData.programa_id}
+              required
+              htmlFor="programa_id"
+              dataHelpId="field-programa"
+            >
+              <Select value={formData.programa_id} onValueChange={(value) => handleFieldChange("programa_id", value)}>
+                <SelectTrigger 
+                  className={fieldErrors.programa_id ? "border-destructive" : formData.programa_id ? "border-success" : ""}
+                  disabled={programasLoading}
+                >
+                  <SelectValue placeholder={
+                    programasLoading 
+                      ? "Carregando programas..." 
+                      : (!programas || programas.length === 0)
+                        ? "Nenhum programa disponível"
+                        : "Selecione um programa"
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {programas?.map((programa) => (
+                    <SelectItem key={programa.id} value={programa.id}>
+                      {programa.nome} {programa.codigo && `(${programa.codigo})`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {formData.programa_id && programas && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {programas.find(p => p.id === formData.programa_id)?.descricao}
+                </p>
+              )}
+            </FormField>
 
             <FormField
               label="Template a ser Seguido"

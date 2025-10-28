@@ -95,6 +95,36 @@ export type Database = {
         }
         Relationships: []
       }
+      programas: {
+        Row: {
+          codigo: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          codigo?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          codigo?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projetos: {
         Row: {
           created_at: string
@@ -448,6 +478,7 @@ export type Database = {
           n8n_request_id: string
           n8n_response: Json | null
           objective: string
+          programa_id: string | null
           requirements: string | null
           scope: string
           status: string
@@ -473,6 +504,7 @@ export type Database = {
           n8n_request_id: string
           n8n_response?: Json | null
           objective: string
+          programa_id?: string | null
           requirements?: string | null
           scope: string
           status?: string
@@ -498,6 +530,7 @@ export type Database = {
           n8n_request_id?: string
           n8n_response?: Json | null
           objective?: string
+          programa_id?: string | null
           requirements?: string | null
           scope?: string
           status?: string
@@ -509,6 +542,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "termos_referencia_programa_id_fkey"
+            columns: ["programa_id"]
+            isOneToOne: false
+            referencedRelation: "programas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "termos_referencia_template_id_fkey"
             columns: ["template_id"]

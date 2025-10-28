@@ -19,6 +19,10 @@ export const useMeusTRs = () => {
           templates (
             title,
             category
+          ),
+          programas (
+            nome,
+            codigo
           )
         `)
         .order('created_at', { ascending: false });

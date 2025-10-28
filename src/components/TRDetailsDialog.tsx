@@ -81,6 +81,11 @@ export const TRDetailsDialog = ({ open, onOpenChange, tr }: TRDetailsDialogProps
               <span className="font-medium">{tr.templates?.title || 'N/A'}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">Programa:</span>
+              <span className="font-medium">{tr.programas?.nome || 'N/A'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <span className="text-muted-foreground">Duração:</span>
               <span className="font-medium">{tr.duration}</span>

@@ -152,6 +152,7 @@ const MeusTRs = () => {
                     <TableRow>
                       <TableHead>ID</TableHead>
                       <TableHead>Título</TableHead>
+                      <TableHead>Programa</TableHead>
                       <TableHead>Tipo</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Data de Criação</TableHead>
@@ -165,6 +166,9 @@ const MeusTRs = () => {
                           {tr.id.substring(0, 8)}...
                         </TableCell>
                         <TableCell className="font-medium">{tr.title}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {tr.programas?.nome || 'N/A'}
+                        </TableCell>
                         <TableCell className="text-muted-foreground">{tr.type}</TableCell>
                         <TableCell>{getStatusBadge(tr.status)}</TableCell>
                         <TableCell className="text-muted-foreground">
