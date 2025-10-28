@@ -8,54 +8,67 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Institutional colors - BID inspired */
-    --background: 0 0% 98%;
-    --foreground: 217 19% 23%;
+    /* Modern color palette - BID inspired */
+    --background: 220 20% 97%;
+    --foreground: 217 19% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 217 19% 23%;
+    --card-foreground: 217 19% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 217 19% 23%;
+    --popover-foreground: 217 19% 20%;
 
-    --primary: 214 95% 48%; /* BID Blue */
+    --primary: 214 100% 50%; /* Vibrant BID Blue */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 214 95% 60%;
+    --primary-glow: 214 100% 65%;
+    --primary-dark: 214 100% 40%;
 
-    --secondary: 213 27% 84%;
-    --secondary-foreground: 217 19% 23%;
+    --secondary: 270 60% 65%; /* Purple accent */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 98%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 15% 95%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 45 93% 58%; /* Warning/highlight yellow */
-    --accent-foreground: 217 19% 23%;
+    --accent: 280 65% 60%; /* Modern purple-pink */
+    --accent-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 142 76% 45%;
     --success-foreground: 0 0% 100%;
+    --success-light: 142 76% 90%;
     
-    --warning: 45 93% 58%;
-    --warning-foreground: 217 19% 23%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-light: 38 92% 90%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --destructive-light: 0 84% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 214 95% 48%;
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 214 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    /* Modern Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-dark)) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--accent)) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(142 76% 35%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 20% 99%) 100%);
     
-    /* Shadows */
-    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.1);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.15);
+    /* Enhanced Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(220 20% 20% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(220 20% 20% / 0.1), 0 2px 4px -1px hsl(220 20% 20% / 0.06);
+    --shadow-lg: 0 10px 15px -3px hsl(220 20% 20% / 0.1), 0 4px 6px -2px hsl(220 20% 20% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(220 20% 20% / 0.1), 0 10px 10px -5px hsl(220 20% 20% / 0.04);
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--primary) / 0.2);
+    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
+    --shadow-glow-hover: 0 0 50px hsl(var(--primary-glow) / 0.4);
     
-    /* Transitions */
+    /* Smooth Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -119,9 +132,25 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  /* Interactive Elements */
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* Enhanced Interactive Elements */
   .hover-scale {
-    @apply transition-transform duration-200 hover:scale-105;
+    @apply transition-all duration-300 hover:scale-105;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-card to-muted/20;
+  }
+
+  .glass-effect {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50;
   }
 }
 

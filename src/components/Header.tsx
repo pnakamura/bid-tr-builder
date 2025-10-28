@@ -16,9 +16,9 @@ export const Header = () => {
   const { user, signOut } = useAuth();
 
   return (
-    <header className="bg-card/95 backdrop-blur-sm border-b border-border/50 shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+  <header className="glass-effect border-b sticky top-0 z-50 shadow-sm">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-between h-16">
           {/* Logo and Title */}
           <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity group">
             <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-lg group-hover:scale-105 transition-transform">

@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { useState } from "react";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Search, FolderKanban, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { SectionHeader } from "@/components/ui/section-header";
 import { useProgramas } from "@/hooks/useProgramas";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -176,26 +178,28 @@ const Programas = () => {
       <Header />
       <Breadcrumbs />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Gerenciar Programas</h1>
-          <p className="text-muted-foreground">Cadastre e gerencie os programas do sistema</p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <SectionHeader
+          icon={FolderKanban}
+          title="Gerenciar Programas"
+          description="Configure e organize os programas do sistema para melhor controle e rastreabilidade dos Termos de Referência"
+          badge="Admin"
+        />
 
-        <Card>
-          <CardHeader>
+        <Card className="overflow-hidden shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent">
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
               <div>
-                <CardTitle>Lista de Programas</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-xl">Lista de Programas</CardTitle>
+                <CardDescription className="text-base">
                   {filteredProgramas?.length || 0} programa(s) cadastrado(s)
                 </CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-64">
+                <div className="relative flex-1 sm:w-80">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Buscar programa..."
+                    placeholder="Buscar por nome ou código..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
@@ -203,54 +207,67 @@ const Programas = () => {
                 </div>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button onClick={() => handleOpenDialog()}>
+                    <Button onClick={() => handleOpenDialog()} className="shadow-md hover:shadow-lg transition-all">
                       <Plus className="mr-2 h-4 w-4" />
                       Novo Programa
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                      <DialogTitle>
+                      <DialogTitle className="text-2xl flex items-center gap-2">
+                        {editingPrograma ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
                         {editingPrograma ? "Editar Programa" : "Novo Programa"}
                       </DialogTitle>
-                      <DialogDescription>
-                        Preencha os dados do programa
+                      <DialogDescription className="text-base">
+                        Preencha os dados do programa. Campos marcados com * são obrigatórios.
                       </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="nome">Nome *</Label>
-                        <Input
-                          id="nome"
-                          value={formData.nome}
-                          onChange={(e) => setFormData(prev => ({ ...prev, nome: e.target.value }))}
-                          placeholder="Ex: PROSAMIN+"
-                          required
-                        />
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="nome" className="text-base font-semibold">
+                            Nome do Programa *
+                          </Label>
+                          <Input
+                            id="nome"
+                            value={formData.nome}
+                            onChange={(e) => setFormData(prev => ({ ...prev, nome: e.target.value }))}
+                            placeholder="Ex: PROSAMIN+"
+                            required
+                            className="text-base"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="codigo" className="text-base font-semibold flex items-center gap-2">
+                            <Code className="h-4 w-4" />
+                            Código
+                          </Label>
+                          <Input
+                            id="codigo"
+                            value={formData.codigo}
+                            onChange={(e) => setFormData(prev => ({ ...prev, codigo: e.target.value }))}
+                            placeholder="Ex: PROS001"
+                            className="text-base"
+                          />
+                        </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="codigo">Código</Label>
-                        <Input
-                          id="codigo"
-                          value={formData.codigo}
-                          onChange={(e) => setFormData(prev => ({ ...prev, codigo: e.target.value }))}
-                          placeholder="Ex: PROS001"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="descricao">Descrição</Label>
+                        <Label htmlFor="descricao" className="text-base font-semibold">
+                          Descrição
+                        </Label>
                         <Textarea
                           id="descricao"
                           value={formData.descricao}
                           onChange={(e) => setFormData(prev => ({ ...prev, descricao: e.target.value }))}
-                          placeholder="Descrição do programa"
-                          rows={3}
+                          placeholder="Descreva o programa..."
+                          rows={4}
+                          className="text-base resize-none"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
+                        <Label htmlFor="status" className="text-base font-semibold">Status</Label>
                         <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                          <SelectTrigger>
+                          <SelectTrigger className="text-base">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -259,11 +276,11 @@ const Programas = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-3 pt-4 border-t">
                         <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                           Cancelar
                         </Button>
-                        <Button type="submit">
+                        <Button type="submit" className="shadow-md">
                           {editingPrograma ? "Salvar Alterações" : "Criar Programa"}
                         </Button>
                       </div>
@@ -305,17 +322,32 @@ const Programas = () => {
                   <TableBody>
                     {filteredProgramas.map((programa) => (
                       <TableRow key={programa.id}>
-                        <TableCell className="font-medium">{programa.nome}</TableCell>
-                        <TableCell className="text-muted-foreground">{programa.codigo || "-"}</TableCell>
+                        <TableCell className="font-medium">
+                          <div className="flex items-center gap-2">
+                            <FolderKanban className="h-4 w-4 text-primary" />
+                            {programa.nome}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {programa.codigo ? (
+                            <code className="px-2 py-1 bg-muted rounded text-xs font-mono">
+                              {programa.codigo}
+                            </code>
+                          ) : (
+                            <span className="text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
                         <TableCell className="max-w-md truncate">{programa.descricao || "-"}</TableCell>
                         <TableCell>
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            programa.status === "Ativo" 
-                              ? "bg-green-100 text-green-800" 
-                              : "bg-gray-100 text-gray-800"
-                          }`}>
+                          <Badge 
+                            variant={programa.status === "Ativo" ? "default" : "secondary"}
+                            className={programa.status === "Ativo" 
+                              ? "bg-success/10 text-success border-success/20" 
+                              : "bg-muted text-muted-foreground"
+                            }
+                          >
                             {programa.status}
-                          </span>
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -323,6 +355,7 @@ const Programas = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleOpenDialog(programa)}
+                              className="hover:bg-primary/10 hover:text-primary"
                             >
                               <Edit className="h-4 w-4" />
                             </Button>
@@ -330,7 +363,7 @@ const Programas = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteClick(programa.id)}
-                              className="text-destructive hover:text-destructive"
+                              className="hover:bg-destructive/10 hover:text-destructive"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
