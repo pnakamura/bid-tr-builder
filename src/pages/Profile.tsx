@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -44,7 +44,7 @@ const Profile = () => {
   });
 
   // Update form when profile loads
-  useState(() => {
+  useEffect(() => {
     if (profile) {
       setFormData({
         nome: profile.nome || '',
@@ -53,7 +53,7 @@ const Profile = () => {
         telefone: profile.telefone || '',
       });
     }
-  });
+  }, [profile]);
 
   // Update profile mutation
   const updateProfile = useMutation({
