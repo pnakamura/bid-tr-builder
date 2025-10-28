@@ -168,14 +168,14 @@ const MeusTRs = () => {
                   <TableBody>
                     {filteredTRs.map((tr) => (
                       <TableRow key={tr.id}>
-                        <TableCell className="font-mono text-xs text-muted-foreground">
+                        <TableCell className="font-mono text-xs text-muted-foreground truncate max-w-[100px]">
                           {tr.id.substring(0, 8)}...
                         </TableCell>
-                        <TableCell className="font-medium">{tr.title}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="font-medium truncate max-w-[250px]">{tr.title}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground truncate max-w-[150px]">
                           {tr.programas?.nome || 'N/A'}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{tr.type}</TableCell>
+                        <TableCell className="text-muted-foreground truncate max-w-[150px]">{tr.type}</TableCell>
                         <TableCell>{getStatusBadge(tr.status)}</TableCell>
                         <TableCell className="text-muted-foreground">
                           {format(new Date(tr.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}

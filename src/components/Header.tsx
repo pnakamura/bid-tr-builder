@@ -30,49 +30,44 @@ export const Header = () => {
             </div>
           </Link>
 
-          {/* Search Bar with Navigation */}
-          <div className="hidden md:flex items-center gap-2 flex-1 max-w-2xl mx-8">
-            <nav className="flex items-center gap-1">
-              <Button
-                variant={location.pathname === "/" ? "secondary" : "ghost"}
-                size="sm"
-                asChild
-              >
-                <Link to="/">Início</Link>
-              </Button>
-              <Button
-                variant={location.pathname === "/meus-trs" ? "secondary" : "ghost"}
-                size="sm"
-                asChild
-              >
-                <Link to="/meus-trs">Meus TRs</Link>
-              </Button>
-              <Button
-                variant={location.pathname === "/templates" ? "secondary" : "ghost"}
-                size="sm"
-                asChild
-              >
-                <Link to="/templates">Templates</Link>
-              </Button>
-              <Button
-                variant={location.pathname === "/programas" ? "secondary" : "ghost"}
-                size="sm"
-                asChild
-              >
-                <Link to="/programas">Programas</Link>
-              </Button>
-              <Button
-                variant={location.pathname === "/reports" ? "secondary" : "ghost"}
-                size="sm"
-                asChild
-              >
-                <Link to="/reports">Relatórios</Link>
-              </Button>
-            </nav>
-            <div className="flex-1 max-w-md ml-4">
-              <GlobalSearch />
-            </div>
-          </div>
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center gap-1 flex-1 ml-8">
+            <Button
+              variant={location.pathname === "/" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/">Início</Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/meus-trs" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/meus-trs">Meus TRs</Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/templates" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/templates">Templates</Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/programas" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/programas">Programas</Link>
+            </Button>
+            <Button
+              variant={location.pathname === "/reports" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+            >
+              <Link to="/reports">Relatórios</Link>
+            </Button>
+          </nav>
 
           {/* Auto-save indicator for create page */}
           {isCreatePage && (
@@ -82,7 +77,12 @@ export const Header = () => {
           )}
           
           {/* Right side actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            {/* Global Search - Better positioned */}
+            <div className="hidden lg:block w-72">
+              <GlobalSearch />
+            </div>
+
             {/* Institution info - Hidden on small screens */}
             <div className="hidden xl:flex items-center space-x-2 text-sm text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
               <Building2 className="h-4 w-4" />

@@ -52,7 +52,7 @@ export const GlobalSearch = () => {
 
       {/* Search Results Dropdown */}
       {isOpen && hasQuery && (
-        <div className="absolute top-full mt-2 w-full bg-card border border-border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full mt-2 w-full bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -71,12 +71,12 @@ export const GlobalSearch = () => {
                     onClick={() => handleResultClick(result.url)}
                     className="w-full px-4 py-3 hover:bg-accent/50 transition-colors text-left flex items-start gap-3"
                   >
-                    <div className="p-2 bg-primary/10 rounded-lg mt-1">
+                    <div className="p-2 bg-primary/10 rounded-lg mt-1 shrink-0">
                       <Icon className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-sm truncate">
+                        <h4 className="font-medium text-sm truncate flex-1">
                           {result.title}
                         </h4>
                         <Badge variant="outline" className="text-xs shrink-0">
@@ -84,12 +84,12 @@ export const GlobalSearch = () => {
                         </Badge>
                       </div>
                       {result.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2">
+                        <p className="text-xs text-muted-foreground line-clamp-2 break-words">
                           {result.description}
                         </p>
                       )}
                       {result.category && (
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1 truncate">
                           {result.category}
                         </p>
                       )}

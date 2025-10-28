@@ -178,17 +178,17 @@ const Templates = () => {
                   data-help-id={`template-card-${index}`}
                 >
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
                           {template.title}
                           {template.downloads > 50 && (
-                            <Badge variant="secondary" className="ml-2">
+                            <Badge variant="secondary" className="ml-2 shrink-0">
                               Popular
                             </Badge>
                           )}
                         </CardTitle>
-                        <CardDescription className="text-sm line-clamp-2">
+                        <CardDescription className="text-sm line-clamp-2 break-words">
                           {template.description || 'Sem descrição'}
                         </CardDescription>
                       </div>
@@ -235,14 +235,14 @@ const Templates = () => {
                     {template.file_path && (
                       <div className="mb-4 p-3 bg-muted/50 rounded-md">
                         <div className="flex items-center gap-2 mb-2">
-                          <File className="h-4 w-4 text-muted-foreground" />
+                          <File className="h-4 w-4 text-muted-foreground shrink-0" />
                           <span className="text-sm font-medium text-foreground">Arquivo Disponível</span>
                         </div>
-                        <div className="flex gap-2 flex-wrap">
-                          <Badge variant="secondary" className="text-xs">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="secondary" className="text-xs truncate max-w-[120px]">
                             {template.file_type?.split('/')[1]?.toUpperCase() || 'DOCX'}
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs shrink-0">
                             {formatFileSize(template.file_size)}
                           </Badge>
                         </div>
