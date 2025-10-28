@@ -8,13 +8,13 @@ export const useReportsData = (dateRange: string, department: string) => {
     const now = new Date();
     switch (dateRange) {
       case "last-week":
-        return { start: subMonths(now, 0), end: now };
+        return { start: subMonths(now, 0.25), end: now }; // 7 days ago
       case "last-month":
-        return { start: startOfMonth(subMonths(now, 1)), end: endOfMonth(subMonths(now, 1)) };
+        return { start: subMonths(now, 1), end: now }; // 30 days ago
       case "last-quarter":
-        return { start: subMonths(now, 3), end: now };
+        return { start: subMonths(now, 3), end: now }; // 90 days ago
       case "last-year":
-        return { start: subMonths(now, 12), end: now };
+        return { start: subMonths(now, 12), end: now }; // 365 days ago
       default:
         return { start: subMonths(now, 1), end: now };
     }
