@@ -162,7 +162,9 @@ serve(async (req) => {
         console.log('Starting background N8N processing...');
         console.log('Sending payload to N8N with callback URL:', JSON.stringify(n8nPayload, null, 2));
         
-        const n8nWebhookUrl = 'https://postgres-n8n.wuzmwk.easypanel.host/webhook/00c47da5-c066-48c5-8002-0719d0a0a6da';
+        // Get N8N webhook URL from environment variable or use fallback
+        const n8nWebhookUrl = Deno.env.get('N8N_WEBHOOK_URL') || 
+          'https://postgres-n8n.wuzmwk.easypanel.host/webhook/00c47da5-c066-48c5-8002-0719d0a0a6da';
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes timeout
