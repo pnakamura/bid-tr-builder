@@ -161,6 +161,7 @@ export type Database = {
           projeto_id: string | null
           responsavel_id: string | null
           status: Database["public"]["Enums"]["risk_status"]
+          termo_referencia_id: string | null
           updated_at: string
         }
         Insert: {
@@ -184,6 +185,7 @@ export type Database = {
           projeto_id?: string | null
           responsavel_id?: string | null
           status?: Database["public"]["Enums"]["risk_status"]
+          termo_referencia_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -207,6 +209,7 @@ export type Database = {
           projeto_id?: string | null
           responsavel_id?: string | null
           status?: Database["public"]["Enums"]["risk_status"]
+          termo_referencia_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -229,6 +232,13 @@ export type Database = {
             columns: ["responsavel_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "riscos_termo_referencia_id_fkey"
+            columns: ["termo_referencia_id"]
+            isOneToOne: false
+            referencedRelation: "termos_referencia"
             referencedColumns: ["id"]
           },
         ]
