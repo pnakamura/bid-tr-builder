@@ -8,15 +8,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-
 export const Header = () => {
   const location = useLocation();
   const isCreatePage = location.pathname === "/create";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, signOut } = useAuth();
-
-  return (
-  <header className="glass-effect border-b sticky top-0 z-50 shadow-sm">
+  const {
+    user,
+    signOut
+  } = useAuth();
+  return <header className="glass-effect border-b sticky top-0 z-50 shadow-sm">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between h-16">
           {/* Logo and Title */}
@@ -26,55 +26,33 @@ export const Header = () => {
             </div>
             <div>
               <h1 className="text-xl font-semibold text-foreground">TR Manager</h1>
-              <p className="text-sm text-muted-foreground">Termos de Referência - BID</p>
+              
             </div>
           </Link>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-1 flex-1 ml-8">
-            <Button
-              variant={location.pathname === "/" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
+            <Button variant={location.pathname === "/" ? "secondary" : "ghost"} size="sm" asChild>
               <Link to="/">Início</Link>
             </Button>
-            <Button
-              variant={location.pathname === "/meus-trs" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
+            <Button variant={location.pathname === "/meus-trs" ? "secondary" : "ghost"} size="sm" asChild>
               <Link to="/meus-trs">Meus TRs</Link>
             </Button>
-            <Button
-              variant={location.pathname === "/templates" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
+            <Button variant={location.pathname === "/templates" ? "secondary" : "ghost"} size="sm" asChild>
               <Link to="/templates">Templates</Link>
             </Button>
-            <Button
-              variant={location.pathname === "/programas" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
+            <Button variant={location.pathname === "/programas" ? "secondary" : "ghost"} size="sm" asChild>
               <Link to="/programas">Programas</Link>
             </Button>
-            <Button
-              variant={location.pathname === "/reports" ? "secondary" : "ghost"}
-              size="sm"
-              asChild
-            >
+            <Button variant={location.pathname === "/reports" ? "secondary" : "ghost"} size="sm" asChild>
               <Link to="/reports">Relatórios</Link>
             </Button>
           </nav>
 
           {/* Auto-save indicator for create page */}
-          {isCreatePage && (
-            <div className="hidden lg:block">
+          {isCreatePage && <div className="hidden lg:block">
               <AutoSaveIndicator />
-            </div>
-          )}
+            </div>}
           
           {/* Right side actions */}
           <div className="flex items-center space-x-3">
@@ -136,20 +114,14 @@ export const Header = () => {
             </div>
             
             {/* Mobile menu button */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(true)}
-            >
+            <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setIsMobileMenuOpen(true)}>
               <Menu className="h-4 w-4" />
             </Button>
           </div>
         </div>
         
         {/* Mobile Drawer - Conditionally rendered */}
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 md:hidden">
+        {isMobileMenuOpen && <div className="fixed inset-0 z-50 md:hidden">
             <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
             <div className="fixed right-0 top-0 h-full w-64 bg-card border-l shadow-lg">
               <div className="p-4">
@@ -180,20 +152,14 @@ export const Header = () => {
                     </Link>
                   </Button>
                   
-                  <Button 
-                    variant="ghost" 
-                    className="w-full justify-start text-destructive"
-                    onClick={signOut}
-                  >
+                  <Button variant="ghost" className="w-full justify-start text-destructive" onClick={signOut}>
                     <LogOut className="h-4 w-4 mr-2" />
                     Sair
                   </Button>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
-    </header>
-  );
+    </header>;
 };
