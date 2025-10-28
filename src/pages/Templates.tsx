@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Eye, Download, Star, Calendar, FileText, Plus, Trash2, Edit, File } from "lucide-react";
+import { Eye, Download, Star, Calendar, FileText, Plus, Trash2, Edit, File, Search } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { TemplateUploadDialog } from "@/components/TemplateUploadDialog";
 import { useTemplates, useDownloadTemplate, useDeleteTemplate, type Template, formatFileSize } from "@/hooks/useTemplates";
@@ -19,6 +19,7 @@ import { HelpTour } from "@/components/HelpTour";
 import { useHelp } from "@/contexts/HelpContext";
 import { templatesHelpSteps } from "@/config/templatesHelpSteps";
 import { Link } from "react-router-dom";
+import { SectionHeader } from "@/components/ui/section-header";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,35 +68,35 @@ const Templates = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <HelpTour />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 space-y-8">
         <Breadcrumbs />
         
-        {/* Hero Section */}
-        <div className="text-center mb-12" data-help-id="templates-hero">
-          <div className="flex justify-end mb-4">
-            <HelpDrawer onStartTour={handleStartTour} />
-          </div>
-          <h1 className="text-4xl font-bold text-foreground mb-4" data-help-id="templates-title">
-            Templates de Termos de Referência
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Acesse nossa biblioteca de templates padronizados para criar Termos de Referência 
-            eficientes e em conformidade com as normas vigentes.
-          </p>
+        <div className="flex justify-end">
+          <HelpDrawer onStartTour={handleStartTour} />
         </div>
+        
+        <SectionHeader
+          icon={FileText}
+          title="Templates de Termos de Referência"
+          description="Acesse nossa biblioteca de templates padronizados para criar Termos de Referência eficientes e em conformidade com as normas vigentes."
+          badge="Biblioteca"
+        />
 
         {/* Search and Filters */}
-        <Card className="mb-8" data-help-id="templates-filters">
+        <Card className="shadow-lg hover:shadow-xl transition-shadow" data-help-id="templates-filters">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Buscar Templates</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Search className="h-5 w-5 text-primary" />
+                  Buscar Templates
+                </CardTitle>
                 <CardDescription>
                   Use os filtros abaixo para encontrar o template ideal para seu projeto
                 </CardDescription>
               </div>
               <TemplateUploadDialog>
-                <Button data-help-id="upload-template-button">
+                <Button data-help-id="upload-template-button" className="shadow-md hover:shadow-lg transition-all">
                   <Plus className="h-4 w-4 mr-2" />
                   Novo Template
                 </Button>
@@ -173,7 +174,7 @@ const Templates = () => {
               templates.map((template, index) => (
                 <Card 
                   key={template.id} 
-                  className="group hover:shadow-lg transition-shadow"
+                  className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-border/50"
                   data-help-id={`template-card-${index}`}
                 >
                   <CardHeader>

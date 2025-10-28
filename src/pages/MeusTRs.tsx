@@ -1,6 +1,8 @@
 import { Header } from "@/components/Header";
 import { useState } from "react";
-import { FileText, Eye, ExternalLink, Trash2, Search, Filter } from "lucide-react";
+import { FileText, Eye, ExternalLink, Trash2, Search, Filter, FolderOpen } from "lucide-react";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -88,13 +90,17 @@ const MeusTRs = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Meus Termos de Referência</h1>
-          <p className="text-muted-foreground">Gerencie todos os TRs criados e acesse os documentos gerados</p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <Breadcrumbs />
+        
+        <SectionHeader
+          icon={FolderOpen}
+          title="Meus Termos de Referência"
+          description="Gerencie todos os TRs criados e acesse os documentos gerados"
+          badge={`${filteredTRs?.length || 0} TRs`}
+        />
 
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow">
           <CardHeader>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
               <div>

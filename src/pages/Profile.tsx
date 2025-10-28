@@ -1,6 +1,8 @@
 import { Header } from "@/components/Header";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/ui/section-header";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -107,15 +109,18 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Meu Perfil</h1>
-          <p className="text-muted-foreground">Gerencie suas informações pessoais e preferências</p>
-        </div>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <Breadcrumbs />
+        
+        <SectionHeader
+          icon={User}
+          title="Meu Perfil"
+          description="Gerencie suas informações pessoais e preferências"
+        />
 
         <div className="grid gap-6">
           {/* Profile Information Card */}
-          <Card>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader>
               <CardTitle>Informações Pessoais</CardTitle>
               <CardDescription>
@@ -220,7 +225,7 @@ const Profile = () => {
           </Card>
 
           {/* Account Information Card */}
-          <Card>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader>
               <CardTitle>Informações da Conta</CardTitle>
               <CardDescription>

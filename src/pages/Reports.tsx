@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -43,28 +44,18 @@ const Reports = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Breadcrumbs />
       <main className="animate-fade-in">
         <div className="p-6 space-y-6">
-          {/* Header Section */}
-          <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-lg p-8 border shadow-sm">
-            <div className="max-w-4xl">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <BarChart3 className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    Relatórios e Analytics
-                  </h1>
-                  <p className="text-lg text-muted-foreground">
-                    Acompanhe o desempenho, produtividade e indicadores do sistema de 
-                    Termos de Referência em tempo real.
-                  </p>
-                </div>
-              </div>
+          <Breadcrumbs />
+          
+          <SectionHeader
+            icon={BarChart3}
+            title="Relatórios e Analytics"
+            description="Acompanhe o desempenho, produtividade e indicadores do sistema de Termos de Referência em tempo real."
+            badge="Dashboard"
+          />
 
-              <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3">
                 <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Período" />
@@ -91,12 +82,10 @@ const Reports = () => {
                   </SelectContent>
                 </Select>
 
-                <Button variant="outline" className="hover-scale" onClick={handleExportReport}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Exportar Relatório
-                </Button>
-              </div>
-            </div>
+            <Button variant="outline" className="hover-scale shadow-md hover:shadow-lg transition-all" onClick={handleExportReport}>
+              <Download className="mr-2 h-4 w-4" />
+              Exportar Relatório
+            </Button>
           </div>
 
           {/* Key Metrics */}

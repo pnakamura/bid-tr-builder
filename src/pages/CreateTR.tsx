@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
+import { SectionHeader } from "@/components/ui/section-header";
 import { AutoSaveIndicator } from "@/components/AutoSaveIndicator";
 import { HelpDrawer } from "@/components/HelpDrawer";
 import { HelpTour } from "@/components/HelpTour";
@@ -700,47 +701,44 @@ const CreateTR = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Breadcrumbs />
+      <HelpTour />
       
-      <main className="max-w-5xl mx-auto p-6 animate-fade-in">
-        {/* Header Section with Auto-save */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" asChild className="hover:bg-muted/50">
-                <Link to="/">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Voltar
-                </Link>
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent" data-help-id="page-title">
-                  Criar Termo de Referência
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Siga os passos para criar um TR completo conforme diretrizes do BID
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <AIGenerationDialog
-                onGenerate={handleGenerateWithAI}
-                isGenerating={generateWithAI.isPending}
-                disabled={!formData.template_id}
-                data-help-id="ai-generate-button"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleStartTour}
-                title="Iniciar tour guiado"
-              >
-                <PlayCircle className="h-4 w-4 mr-2" />
-                Tour Guiado
-              </Button>
-              <HelpDrawer onStartTour={handleStartTour} data-help-id="help-drawer" />
-              <AutoSaveIndicator status={status} lastSaved={lastSaved} data-help-id="autosave-indicator" />
-            </div>
+      <main className="max-w-5xl mx-auto p-6 animate-fade-in space-y-6">
+        <Breadcrumbs />
+        
+        <SectionHeader
+          icon={FileText}
+          title="Criar Termo de Referência"
+          description="Siga os passos para criar um TR completo conforme diretrizes do BID"
+          badge="Novo TR"
+        />
+        
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between">
+          <Button variant="ghost" size="sm" asChild className="hover:bg-muted/50">
+            <Link to="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Link>
+          </Button>
+          <div className="flex items-center gap-3">
+            <AIGenerationDialog
+              onGenerate={handleGenerateWithAI}
+              isGenerating={generateWithAI.isPending}
+              disabled={!formData.template_id}
+              data-help-id="ai-generate-button"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleStartTour}
+              title="Iniciar tour guiado"
+            >
+              <PlayCircle className="h-4 w-4 mr-2" />
+              Tour Guiado
+            </Button>
+            <HelpDrawer onStartTour={handleStartTour} data-help-id="help-drawer" />
+            <AutoSaveIndicator status={status} lastSaved={lastSaved} data-help-id="autosave-indicator" />
           </div>
         </div>
 
