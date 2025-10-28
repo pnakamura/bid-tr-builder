@@ -150,6 +150,7 @@ const MeusTRs = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>ID</TableHead>
                       <TableHead>Título</TableHead>
                       <TableHead>Tipo</TableHead>
                       <TableHead>Status</TableHead>
@@ -160,6 +161,9 @@ const MeusTRs = () => {
                   <TableBody>
                     {filteredTRs.map((tr) => (
                       <TableRow key={tr.id}>
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          {tr.id.substring(0, 8)}...
+                        </TableCell>
                         <TableCell className="font-medium">{tr.title}</TableCell>
                         <TableCell className="text-muted-foreground">{tr.type}</TableCell>
                         <TableCell>{getStatusBadge(tr.status)}</TableCell>

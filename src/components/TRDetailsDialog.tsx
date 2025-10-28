@@ -55,6 +55,17 @@ export const TRDetailsDialog = ({ open, onOpenChange, tr }: TRDetailsDialogProps
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
+          {/* ID do TR */}
+          <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">ID do Termo de Referência:</span>
+              <code className="text-xs font-mono bg-background px-2 py-1 rounded border">
+                {tr.id}
+              </code>
+            </div>
+          </div>
+
           {/* Metadata */}
           <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
             <div className="flex items-center gap-2 text-sm">

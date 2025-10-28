@@ -210,7 +210,12 @@ export const Dashboard = () => {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <Link to="/meus-trs" className="flex-1 min-w-0 hover:opacity-80">
-                          <h4 className="font-medium text-sm mb-1 truncate">{tr.title}</h4>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium text-sm truncate">{tr.title}</h4>
+                            <code className="text-[10px] font-mono text-muted-foreground bg-muted px-1 py-0.5 rounded">
+                              {tr.id.substring(0, 8)}
+                            </code>
+                          </div>
                           <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{tr.description}</p>
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
