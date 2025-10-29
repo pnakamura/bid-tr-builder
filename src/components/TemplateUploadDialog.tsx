@@ -12,6 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCreateTemplate, useUploadTemplate } from '@/hooks/useTemplates';
 import { useToast } from '@/hooks/use-toast';
+import { FieldHelp } from './FieldHelp';
 
 const templateSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -159,7 +160,10 @@ export function TemplateUploadDialog({ children }: TemplateUploadDialogProps) {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="title">Título *</Label>
+              <Label htmlFor="title" className="flex items-center gap-1">
+                Título *
+                <FieldHelp content="Digite um nome claro e descritivo que identifique facilmente o template. Ex: 'TR Infraestrutura de TI' ou 'Contratação de Serviços de Consultoria'" />
+              </Label>
               <Input
                 id="title"
                 {...register('title')}
@@ -171,7 +175,10 @@ export function TemplateUploadDialog({ children }: TemplateUploadDialogProps) {
             </div>
 
             <div>
-              <Label htmlFor="description">Descrição</Label>
+              <Label htmlFor="description" className="flex items-center gap-1">
+                Descrição
+                <FieldHelp content="Forneça uma descrição detalhada sobre o propósito e conteúdo deste template. Inclua informações sobre quando ele deve ser usado e quais requisitos ele aborda." />
+              </Label>
               <Textarea
                 id="description"
                 {...register('description')}
@@ -182,7 +189,10 @@ export function TemplateUploadDialog({ children }: TemplateUploadDialogProps) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="category">Categoria *</Label>
+                <Label htmlFor="category" className="flex items-center gap-1">
+                  Categoria *
+                  <FieldHelp content="Selecione a categoria que melhor classifica este template: Infraestrutura (redes, servidores), Tecnologia (software, sistemas), Consultoria (assessoria, estudos), Obras (construção, reformas), Serviços (manutenção, suporte) ou Aquisições (compras, materiais)." />
+                </Label>
                 <Select onValueChange={(value) => setValue('category', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione uma categoria" />
@@ -201,7 +211,10 @@ export function TemplateUploadDialog({ children }: TemplateUploadDialogProps) {
               </div>
 
               <div>
-                <Label htmlFor="type">Tipo *</Label>
+                <Label htmlFor="type" className="flex items-center gap-1">
+                  Tipo *
+                  <FieldHelp content="Indique o nível de complexidade: Básico (simples, poucos requisitos), Intermediário (detalhamento moderado), Avançado (requisitos complexos) ou Especializado (alta especialização técnica)." />
+                </Label>
                 <Select onValueChange={(value) => setValue('type', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um tipo" />
@@ -221,7 +234,10 @@ export function TemplateUploadDialog({ children }: TemplateUploadDialogProps) {
             </div>
 
             <div>
-              <Label htmlFor="file-upload">Arquivo *</Label>
+              <Label htmlFor="file-upload" className="flex items-center gap-1">
+                Arquivo *
+                <FieldHelp content="Faça upload do arquivo de template. Formatos aceitos: PDF, DOC, DOCX, TXT e ODT. Tamanho máximo: 10MB. O arquivo deve conter o modelo de Termo de Referência completo." />
+              </Label>
               <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
                 <input
                   id="file-upload"
@@ -261,10 +277,10 @@ export function TemplateUploadDialog({ children }: TemplateUploadDialogProps) {
                 checked={watch('is_public')}
                 onCheckedChange={(checked) => setValue('is_public', checked)}
               />
-              <Label htmlFor="is_public">Template público</Label>
-              <span className="text-xs text-muted-foreground ml-2">
-                (Outros usuários poderão ver e usar este template)
-              </span>
+              <Label htmlFor="is_public" className="flex items-center gap-1">
+                Template público
+                <FieldHelp content="Ao marcar como público, este template ficará disponível para todos os usuários do sistema. Se desmarcado, apenas você poderá visualizar e utilizar este template." />
+              </Label>
             </div>
           </div>
 
